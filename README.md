@@ -14,3 +14,13 @@ R package that visualizes MaxQuant output of activity-based protein profiling ex
 3. Install this package directly from github
  
    install_github("devradiumking/maxabpp")
+   
+   
+Dependency:
+library(dplyr)
+library(tidyr)
+library(stringdist)
+library(rscripting)
+library(stringr)
+library(tidyverse)
+library(ggplot2)

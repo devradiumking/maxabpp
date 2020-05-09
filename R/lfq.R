@@ -11,13 +11,6 @@
 pairwise_LFQ <- function (raw = read.delim("modificationSpecificPeptides.txt", header=TRUE, sep="\t"), metadata = read.delim("metadata.txt", header=TRUE, sep="\t"),
 name_probe_mod, max_each_mod = 1, max_total_mods = 1, quantitation_level = "peptide" , background_check = FALSE) {
 
-library(dplyr)
-library(tidyr)
-library(stringdist)
-library(rscripting)
-library(stringr)
-library(tidyverse)
-
 #* Establish a new 'ArgCheck' object
 Check <- ArgumentCheck::newArgCheck()
 num_mods <- length(name_probe_mod)

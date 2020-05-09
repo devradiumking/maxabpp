@@ -3,14 +3,6 @@
 #' @param quantitation_level  a string, must be either "peptide" or "protein", must be match the pairwise_LFQ argument
 append_ec_sites <- function(LFQ_table, quantitation_level) {
 
-library(dplyr)
-library(tidyr)
-library(stringdist)
-library(rscripting)
-library(stringr)
-library(tidyverse)
-library(ggplot2)
-library(UniprotR)
 proteome_database <-read.delim("homo_sapiens.txt", header=TRUE, sep="\t")
 
 #Internal function 1: extract an ec number for the major protein in a protein group from the database
