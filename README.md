@@ -7,28 +7,58 @@ Getting Started
  How to install this package?
  
 1. You need to install the devtools package. You can do this from CRAN. Invoke R and then type
- 
-   >install.packages("devtools")
- 
+ ```{r}
+install.packages("devtools")
+ ```
 2. Load the devtools package.
- 
-   >library(devtools)
- 
-3. Install this package directly from github
- 
-   >install_github("devradiumking/maxabpp")
-   
-   
-Dependency:
+ ```{r}
+library(devtools)
+ ```
+3. Install this package directly from github.
+ ```{r}
+install_github("devradiumking/maxabpp")
+ ```  
+Usage
+-----
+     
+1. Install dependent R packages.
+```{r}
+install.packages("tidyverse")
+install.packages("stringdist")
+install_github('btupper/rscripting')
+install.packages("stringr")
+install.packages("ggplot2")
+```  
+2. Load dependent R packages.
+```{r}
+library(tidyverse)
+library(stringdist)
+library(rscripting)
+library(stringr)
+library(ggplot2)
+```  
+3. Call function pairwise_LFQ() on raw MaxQuant output ("modificationSpecificPeptides.txt" and a customized metadata file "metadata.txt" must be put in the folder set as the working directory) to obtain output1, for example:
+```{r}
+output1 <- pairwise_LFQ(
+raw = read.delim("modificationSpecificPeptides.txt", header = TRUE, sep = "\t"), 
+metadata = read.delim("metadata.txt", header=TRUE, sep = "\t"), 
+name_probe_mod = c("Mod"), 
+max_each_mod = 1, 
+max_total_mods = 1, 
+quantitation_level = "peptide", 
+background_check = FALSE)
+```
+>Note: Multiple modification forms of a single chemical probe can be used as name_probe_mod = c("Mod1", "Mod2"). 
+>For instance, original (+ probe mass) and hydrolyzed (+ probe mass + 18 Da). These should be previously set on MaxQuant.
 
-  >library(dplyr)\
-  >library(tidyr)\
-  >library(stringdist)\
-  >library(rscripting)\
-  >library(stringr)\
-  >library(tidyverse)\
-  >library(ggplot2)\
-  
+4. Call function append_ec_sites() on output1 to obtain output2, for example:
+```{r}
+output2 <- append_ec_sites(output1, quantitation_level = "peptide")
+```
+5. Call function plot_volcano(), on output2 to obtain a volcano plot, for example:
+```{r}
+plot_volcano(output2, "InhibitorHigh _vs_ InhibitorLow _log2fold_change", "InhibitorHigh _vs_ InhibitorLow _-log10p-value", xlim = c(-8, 3), ylim = c(0, 5), "Gene.Names", 1, -1.58, "InhibitorName/ProbeName")
+```
 Citation
 --------
   
