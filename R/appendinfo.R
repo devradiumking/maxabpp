@@ -2,9 +2,11 @@
 #' @param LFQ_table     a dataframe saved as the pairwise_LFQ() output
 #' @param quantitation_level  a string, must be either "peptide" or "protein", must be match the pairwise_LFQ argument
 append_ec_sites <- function(LFQ_table, quantitation_level) {
-
-proteome_database <-read.delim("homo_sapiens.txt", header=TRUE, sep="\t")
-
+##package_root <- system.file(package = "maxabpp")
+##proteome_dir <- paste0(package_root, "/", "homo_sapiens.txt")
+##proteome_database <-read.delim(proteome_dir, header=TRUE, sep="\t")
+#proteome_database <-read.delim("homo_sapiens.txt", header=TRUE, sep="\t")
+#use_data(proteome_database)
 #Internal function 1: extract an ec number for the major protein in a protein group from the database
 database_search_ec <- function (protein_group) {
   protein_hits <- vector()
