@@ -1,4 +1,6 @@
-#Main
+#' Append columns of enzyme class and active site information to the pairwise_LFQ output
+#' @param LFQ_table     a dataframe saved as the pairwise_LFQ() output
+#' @param quantitation_level  a string, must be either "peptide" or "protein", must be match the pairwise_LFQ argument
 append_ec_sites <- function(LFQ_table, quantitation_level) {
 
 library(dplyr)
@@ -23,7 +25,7 @@ database_search_ec <- function (protein_group) {
   } else {return ("na")}
 }
 
-#Internal function 2: translate ec number to the class name and attach 
+#Internal function 2: translate ec number to the class name and attach
 attach_enzyme_class <- function (LFQ_table) {
   len <- nrow(LFQ_table)
   ec_list <- vector()

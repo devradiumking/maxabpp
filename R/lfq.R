@@ -1,5 +1,14 @@
-
-pairwise_LFQ <- function (raw = read.delim("modificationSpecificPeptides.txt", header=TRUE, sep="\t"), metadata = read.delim("metadata.txt", header=TRUE, sep="\t"), 
+#' Pairwise label-free quantitation: convert MaxQuant modificationSpecificPeptides.txt file to a volcano plot-ready table
+#' @param raw                 a dataframe by reading modificationSpecificPeptides.txt
+#' @param metadata            a dataframe that maches the MaxQuant input. Column 1: Intensity (such as Intensity samplename, same as the column names in modificationSpecificPeptides.txt) name Column 2: Replicate group (use the same name for each group of replicates)
+#' @param name_probe_mod      a string vector of chemical probe/modification names, such as c("Mod1", "Mod2"), must match MaxQuant input
+#' @param max_each_mod        a integer as the maximal number of modifications on a single peptide, set for each chemical probe
+#' @param max_total_mods      a integer as the maximal number of modifications on a single peptide, set for all chemical probes Note max_each_mod must not be less than max_total_mods
+#' @param quantitation_level  a string, must be either "peptide" or "protein"
+#' @param background_check    a boolean, FALSE = quantify probe-modified peptides, TRUE = quantify non-probe-modified peptides
+#' @return a volcano plot-ready dataframe
+## output <- pairwise_LFQ(raw = read.delim("modificationSpecificPeptides.txt", header=TRUE, sep="\t"), metadata = read.delim("metadata.txt", header=TRUE, sep="\t"), name_probe_mod = c("Mod1", "Mod2"), max_each_mod = 1, max_total_mods = 1, quantitation_level = "peptide" , background_check = FALSE)
+pairwise_LFQ <- function (raw = read.delim("modificationSpecificPeptides.txt", header=TRUE, sep="\t"), metadata = read.delim("metadata.txt", header=TRUE, sep="\t"),
 name_probe_mod, max_each_mod = 1, max_total_mods = 1, quantitation_level = "peptide" , background_check = FALSE) {
 
 library(dplyr)
@@ -8,7 +17,7 @@ library(stringdist)
 library(rscripting)
 library(stringr)
 library(tidyverse)
-  
+
 #* Establish a new 'ArgCheck' object
 Check <- ArgumentCheck::newArgCheck()
 num_mods <- length(name_probe_mod)
@@ -24,7 +33,7 @@ if (is.null(metadata))
     argcheck = Check
   )
 #* Add an error if number of input mods is less than 1
-if (num_mods < 1 || num_mods > 10 || is.character(name_probe_mod) == FALSE) 
+if (num_mods < 1 || num_mods > 10 || is.character(name_probe_mod) == FALSE)
   ArgumentCheck::addError(
     msg = "'name_probe_mod' must be a vector containing 1 to 10 string components",
     argcheck = Check
@@ -92,7 +101,7 @@ if_equal_variance <- function (group1, group2) {
     }
   }
 }
-  
+
 #Internal function 4B: generate a table for volcano plot
 generate_volcano_table <- function (interim_data) {
   result <- data.frame()
@@ -171,7 +180,7 @@ if (background_check == TRUE) {
   filtered_step2 <- add_parent_sequence(filtered_step1)
   mod_validation <- TRUE
 } else {
-###Conditional statement probe modification-specific quantitation  
+###Conditional statement probe modification-specific quantitation
  #Replace special characters with dots within the probe modification string due to the limitation of column renaming in R
  probe_mods <- gsub("-", ".", gsub(" ", ".", gsub("[()]", ".", name_probe_mod)))
  #Extract a subset containing non-reverse peptides carrying probe modifications
