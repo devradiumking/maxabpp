@@ -1,6 +1,10 @@
 #' Append columns of enzyme class and active site information to the pairwise_LFQ output
+#' @seealso \code{\link{pairwise_LFQ}}
 #' @param LFQ_table     a dataframe saved as the pairwise_LFQ() output
 #' @param quantitation_level  a string, must be either "peptide" or "protein", must be match the pairwise_LFQ argument
+#' @return             a volcano plot-ready dataframe annotated with two extra columns of enzyme class and active sites
+#' @examples output2 <- append_ec_sites(output1, quantitation_level = "peptide")
+#' @export
 append_ec_sites <- function(LFQ_table, quantitation_level) {
 ##package_root <- system.file(package = "maxabpp")
 ##proteome_dir <- paste0(package_root, "/", "homo_sapiens.txt")

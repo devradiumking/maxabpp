@@ -57,7 +57,13 @@ output2 <- append_ec_sites(output1, quantitation_level = "peptide")
 ```
 5. Call function plot_volcano(), on output2 to obtain a volcano plot, for example:
 ```{r}
-plot_volcano(output2, "InhibitorHigh _vs_ InhibitorLow _log2fold_change", "InhibitorHigh _vs_ InhibitorLow _-log10p-value", xlim = c(-8, 3), ylim = c(0, 5), "Gene.Names", 1, -1.58, "InhibitorName/ProbeName")
+plot_volcano(output2, "InhibitorHigh _vs_ InhibitorLow _log2fold_change", "InhibitorHigh _vs_ InhibitorLow _-log10p-value", xlim = c(-8, 3), ylim = c(0, 5), "Gene.Names", 1, -1, "InhibitorName/ProbeName")
+```
+6. New feature of v1.1, you can plot all volcano plots by calling multi_volcano_plots() functions
+```{r}
+multi_volcano_plots(raw = raw, meta = meta, name_probe_mod = c("Mod"),
+                    max_each_mod = 1, max_total_mods = 1, quantitation_level = "peptide" , background_check = FALSE,
+                    xlim = c(-10, 3), ylim = c(0, 5), label_col_name = "Gene.Names", pCutoff = 0.05, FCcutoff = -2)
 ```
 Citation
 --------
@@ -67,5 +73,5 @@ maxabpp was developed at the [Yao Lab](http://web.uconn.edu/yaogroup/index.html)
 If you use this package please cite as:
 
 > Lei Wang and Xudong Yao (2020). maxabpp: R package for augmented visualization of peptide-centric competitive activity-based protein profiling data from MaxQuant label-free quantitation output. 
-> package version 1.0. https://github.com/devradiumking/maxabpp
+> package version 1.1. https://github.com/devradiumking/maxabpp
 

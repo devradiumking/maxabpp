@@ -11,6 +11,15 @@ append_ec_sites(LFQ_table, quantitation_level)
 
 \item{quantitation_level}{a string, must be either "peptide" or "protein", must be match the pairwise_LFQ argument}
 }
+\value{
+a volcano plot-ready dataframe annotated with two extra columns of enzyme class and active sites
+}
 \description{
 Append columns of enzyme class and active site information to the pairwise_LFQ output
+}
+\examples{
+output2 <- append_ec_sites(output1, quantitation_level = "peptide")
+}
+\seealso{
+\code{\link{pairwise_LFQ}}
 }

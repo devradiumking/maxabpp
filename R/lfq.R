@@ -6,8 +6,9 @@
 #' @param max_total_mods      a integer as the maximal number of modifications on a single peptide, set for all chemical probes Note max_each_mod must not be less than max_total_mods
 #' @param quantitation_level  a string, must be either "peptide" or "protein"
 #' @param background_check    a boolean, FALSE = quantify probe-modified peptides, TRUE = quantify non-probe-modified peptides
-#' @return a volcano plot-ready dataframe
-## output <- pairwise_LFQ(raw = read.delim("modificationSpecificPeptides.txt", header=TRUE, sep="\t"), metadata = read.delim("metadata.txt", header=TRUE, sep="\t"), name_probe_mod = c("Mod1", "Mod2"), max_each_mod = 1, max_total_mods = 1, quantitation_level = "peptide" , background_check = FALSE)
+#' @return a dataframe table of peptides, proteins and their corresponding -log10(p-value) and log2(FC)
+#' @examples output <- pairwise_LFQ(raw = read.delim("modificationSpecificPeptides.txt", header=TRUE, sep="\t"), metadata = read.delim("metadata.txt", header=TRUE, sep="\t"), name_probe_mod = c("Mod1", "Mod2"), max_each_mod = 1, max_total_mods = 1, quantitation_level = "peptide" , background_check = FALSE)
+#' @export
 pairwise_LFQ <- function (raw = read.delim("modificationSpecificPeptides.txt", header=TRUE, sep="\t"), metadata = read.delim("metadata.txt", header=TRUE, sep="\t"),
 name_probe_mod, max_each_mod = 1, max_total_mods = 1, quantitation_level = "peptide" , background_check = FALSE) {
 

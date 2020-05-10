@@ -35,6 +35,16 @@ plot_volcano(
 
 \item{title}{a string as the title of the volcano plot}
 }
+\value{
+a volcano plot
+}
 \description{
 Generates a volcano plot from the output of append_ec_sites()
+}
+\examples{
+plot_volcano(output2, x, y, xlim, ylim, label_col_name, pCutoff, FCcutoff, title)
+}
+\seealso{
+\code{\link{pairwise_LFQ}}
+         \code{\link{append_ec_sites}}
 }

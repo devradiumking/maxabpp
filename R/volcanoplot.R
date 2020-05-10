@@ -1,4 +1,6 @@
 #' Generates a volcano plot from the output of append_ec_sites()
+#' @seealso \code{\link{pairwise_LFQ}}
+#'          \code{\link{append_ec_sites}}
 #' @param LFQ_table_ec        a dataframe saved as the append_ec_sites() output
 #' @param x                   log2FC column name
 #' @param y                   -log10pvalue column name
@@ -8,6 +10,9 @@
 #' @param pCutoff             the p-Value cutoff on -log10 scale, for instance, use 1.3 for p-value = 0.05
 #' @param FCcutoff            the fold change cutoff on log2 scale, for instance, use -1 for -2 fold change, Note for ABPP, we are only interested in negative fold change
 #' @param title               a string as the title of the volcano plot
+#' @return                    a volcano plot
+#' @examples plot_volcano(output2, x, y, xlim, ylim, label_col_name, pCutoff, FCcutoff, title)
+#' @export
 plot_volcano <- function(LFQ_table_ec, x, y, xlim, ylim, label_col_name, pCutoff, FCcutoff, title) {
   #rownames(LFQ_table_ec) <- LFQ_table_ec$protein$protein
   #rownames(LFQ_table_ec) #<- paste(LFQ_table_ec$protein$protein,":",LFQ_table_ec$`protein names`$`protein names`)
@@ -76,7 +81,7 @@ plot_volcano <- function(LFQ_table_ec, x, y, xlim, ylim, label_col_name, pCutoff
                                title = "Volcano plot", subtitle = NULL,
                                caption = paste0("Total = ", nrow(toptable), " Identified"),
                                titleLabSize = 18, subtitleLabSize = 14, captionLabSize = 14,
-                               pCutoff = 1.3, pLabellingCutoff = pCutoff, FCcutoff = -1.58,
+                               pCutoff = 1.3, pLabellingCutoff = pCutoff, FCcutoff = -1,
                                cutoffLineType = "longdash", cutoffLineCol = "black", cutoffLineWidth = 0.4,
                                transcriptPointSize = 0.8, transcriptLabSize = 3, transcriptLabCol = "black",
                                transcriptLabFace = "plain", transcriptLabhjust = 0, transcriptLabvjust = 1.5,

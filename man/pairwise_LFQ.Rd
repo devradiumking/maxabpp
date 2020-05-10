@@ -30,8 +30,11 @@ pairwise_LFQ(
 \item{background_check}{a boolean, FALSE = quantify probe-modified peptides, TRUE = quantify non-probe-modified peptides}
 }
 \value{
-a volcano plot-ready dataframe
+a dataframe table of peptides, proteins and their corresponding -log10(p-value) and log2(FC)
 }
 \description{
 Pairwise label-free quantitation: convert MaxQuant modificationSpecificPeptides.txt file to a volcano plot-ready table
+}
+\examples{
+output <- pairwise_LFQ(raw = read.delim("modificationSpecificPeptides.txt", header=TRUE, sep="\t"), metadata = read.delim("metadata.txt", header=TRUE, sep="\t"), name_probe_mod = c("Mod1", "Mod2"), max_each_mod = 1, max_total_mods = 1, quantitation_level = "peptide" , background_check = FALSE)
 }
