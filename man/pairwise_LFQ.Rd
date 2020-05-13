@@ -11,7 +11,8 @@ pairwise_LFQ(
   max_each_mod = 1,
   max_total_mods = 1,
   quantitation_level = "peptide",
-  background_check = FALSE
+  background_check = FALSE,
+  normalize_to = NULL
 )
 }
 \arguments{
@@ -28,6 +29,8 @@ pairwise_LFQ(
 \item{quantitation_level}{a string, must be either "peptide" or "protein"}
 
 \item{background_check}{a boolean, FALSE = quantify probe-modified peptides, TRUE = quantify non-probe-modified peptides}
+
+\item{normalize_to}{a string, must be either "sum_all", "mean_all", (normalize to all peptides) "sum_background", or "mean_background" (normalize to background/non-probe-modified peptides).}
 }
 \value{
 a dataframe table of peptides, proteins and their corresponding -log10(p-value) and log2(FC)
@@ -36,5 +39,5 @@ a dataframe table of peptides, proteins and their corresponding -log10(p-value) 
 Pairwise label-free quantitation: convert MaxQuant modificationSpecificPeptides.txt file to a volcano plot-ready table
 }
 \examples{
-output <- pairwise_LFQ(raw = read.delim("modificationSpecificPeptides.txt", header=TRUE, sep="\t"), metadata = read.delim("metadata.txt", header=TRUE, sep="\t"), name_probe_mod = c("Mod1", "Mod2"), max_each_mod = 1, max_total_mods = 1, quantitation_level = "peptide" , background_check = FALSE)
+output <- pairwise_LFQ(raw = read.delim("modificationSpecificPeptides.txt", header=TRUE, sep="\t"), metadata = read.delim("metadata.txt", header=TRUE, sep="\t"), name_probe_mod = c("Mod1", "Mod2"), max_each_mod = 1, max_total_mods = 1, quantitation_level = "peptide" , background_check = FALSE, normalize_to = "mean_all")
 }

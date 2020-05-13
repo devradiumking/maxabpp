@@ -6,41 +6,57 @@
 #' @examples output2 <- append_ec_sites(output1, quantitation_level = "peptide")
 #' @export
 append_ec_sites <- function(LFQ_table, quantitation_level) {
-##package_root <- system.file(package = "maxabpp")
-##proteome_dir <- paste0(package_root, "/", "homo_sapiens.txt")
-##proteome_database <-read.delim(proteome_dir, header=TRUE, sep="\t")
-#proteome_database <-read.delim("homo_sapiens.txt", header=TRUE, sep="\t")
+#proteome_database <-read.delim("homo_sapiens_ec_sites_database_05132020.txt", header=TRUE, sep="\t")
 #use_data(proteome_database)
-#Internal function 1: extract an ec number for the major protein in a protein group from the database
+#Internal function 1: extract an ec number for the all proteins in a protein group from the database
 database_search_ec <- function (protein_group) {
   protein_hits <- vector()
   ec <- vector()
-  major_protein <- str_split(protein_group[1], ";")[[1]][1]
-  index <- grep(major_protein, proteome_database$Entry)
-  ec <- as.character(proteome_database$EC.number[index])
+  proteins <- str_split(protein_group, ";")[[1]]
+  #Remove isoform-related suffix of each protein entry
+  deisoformed_proteins <- str_replace(proteins, "\\-.*", "")
+  ec <- vector()
+  for (i in 1:length(deisoformed_proteins)) {
+  index <- grep(deisoformed_proteins[i], proteome_database$Entry)
+  each_ec <- as.character(proteome_database$EC.number[index])
+  each_ec <- str_trunc(each_ec, 1, "right", ellipsis = "")
+  ec <- c(ec, each_ec)
+  }
+  ec <- subset(ec, ec != "")
+  ec <- unique(ec)
   if (length(ec) > 0) {
   return(ec)
   } else {return ("na")}
 }
 
-#Internal function 2: translate ec number to the class name and attach
+#Internal function 2: translate ec numbers to the class names and attach
 attach_enzyme_class <- function (LFQ_table) {
   len <- nrow(LFQ_table)
   ec_list <- vector()
   ec <- NA
   for (i in 1:len) {
-    ec <- database_search_ec(LFQ_table$Proteins[i])
-    ec <- str_trunc(ec, 1, "right", ellipsis = "")
-    switch(ec,
-           "1" = {ec_list[i] <- "Oxidoreductase"},
-           "2" = {ec_list[i] <- "Transferase"},
-           "3" = {ec_list[i] <- "Hydrolase"},
-           "4" = {ec_list[i] <- "Lyase"},
-           "5" = {ec_list[i] <- "Isomerase"},
-           "6" = {ec_list[i] <- "Ligase"},
-           "7" = {ec_list[i] <- "Translocase"},
-           ec_list[i] <- "Others"
-    )
+    ec_group <- database_search_ec(LFQ_table$Proteins[i])
+    ec_sublist <- vector()
+    for (j in 1:length(ec_group)) {
+    switch(ec_group[j],
+           "1" = {ec_sublist[j] <- "Oxidoreductase"},
+           "2" = {ec_sublist[j] <- "Transferase"},
+           "3" = {ec_sublist[j] <- "Hydrolase"},
+           "4" = {ec_sublist[j] <- "Lyase"},
+           "5" = {ec_sublist[j] <- "Isomerase"},
+           "6" = {ec_sublist[j] <- "Ligase"},
+           "7" = {ec_sublist[j] <- "Translocase"},
+           ec_sublist[j] <- ""
+          )
+    }
+    if (length(unique(ec_sublist)) > 1) {
+      ec_list[i] <- paste0(ec_sublist, collapse = "/")
+    }
+    else if (length(ec_sublist) == 1 && ec_sublist != "") {
+      ec_list[i] <- ec_sublist
+    } else {
+      ec_list[i] <- "Others"
+    }
   }
   return(cbind(LFQ_table, ec_list))
 }
