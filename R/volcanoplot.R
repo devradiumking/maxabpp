@@ -17,7 +17,10 @@ plot_volcano <- function(LFQ_table_ec, x, y, xlim, ylim, label_col_name, pCutoff
   #rownames(LFQ_table_ec) <- LFQ_table_ec$protein$protein
   #rownames(LFQ_table_ec) #<- paste(LFQ_table_ec$protein$protein,":",LFQ_table_ec$`protein names`$`protein names`)
   # create custom key-value pairs for "Oxidoreductases" "Hydrolases" "Ligases" "Transferases" "Isomerases" "Lyases" "Translocases" "Other proteins"
-
+for (nrow_LFQ_table in 1:nrow(LFQ_table_ec)) {
+  if (LFQ_table_ec[[label_col_name]][nrow_LFQ_table] == "")
+    LFQ_table_ec[[label_col_name]][nrow_LFQ_table] <- LFQ_table_ec[["Proteins"]][nrow_LFQ_table]
+}
   major_label <- function (dataframe, label_col_name) {
     labs <- dataframe[[label_col_name]]
     lab <- NULL
@@ -48,30 +51,30 @@ plot_volcano <- function(LFQ_table_ec, x, y, xlim, ylim, label_col_name, pCutoff
   num_overinhibited <- length(na.exclude(major_label(overinhibited, label_col_name)))
   quantified <- nrow(nna_y) + num_overinhibited
   significant <- length(na.exclude(major_label(sub2, label_col_name))) + num_overinhibited
-  # set the base colour as 'grey'
-  keyvals <- rep('grey', nrow(finite_x))
+  # set the base colour as 'black'
+  keyvals <- rep('black', nrow(finite_x))
 
   names(keyvals) <- rep('Other proteins', nrow(finite_x))
 
-  keyvals[which(finite_x$ec_list == "Oxidoreductase")] <- 'red'
+  keyvals[which(finite_x$ec_list == "Oxidoreductase")] <- 'firebrick'
   names(keyvals)[(finite_x$ec_list == "Oxidoreductase")] <- 'Oxidoreductase'
 
-  keyvals[which(finite_x$ec_list == "Transferase")] <- 'blue'
+  keyvals[which(finite_x$ec_list == "Transferase")] <- 'chocolate'
   names(keyvals)[(finite_x$ec_list == "Transferase")] <- 'Transferase'
 
-  keyvals[which(finite_x$ec_list == "Hydrolase")] <- 'green'
+  keyvals[which(finite_x$ec_list == "Hydrolase")] <- 'darkturquoise'
   names(keyvals)[(finite_x$ec_list == "Hydrolase")] <- 'Hydrolase'
 
-  keyvals[which(finite_x$ec_list == "Lyase")] <- 'orange'
+  keyvals[which(finite_x$ec_list == "Lyase")] <- 'yellow3'
   names(keyvals)[(finite_x$ec_list == "Lyase")] <- 'Lyase'
 
-  keyvals[which(finite_x$ec_list == "Isomerase")] <- 'magenta'
+  keyvals[which(finite_x$ec_list == "Isomerase")] <- 'deeppink2'
   names(keyvals)[(finite_x$ec_list == "Isomerase")] <- 'Isomerase'
 
-  keyvals[which(finite_x$ec_list == "Ligase")] <- 'gold'
+  keyvals[which(finite_x$ec_list == "Ligase")] <- 'limegreen'
   names(keyvals)[(finite_x$ec_list == "Ligase")] <- 'Ligase'
 
-  keyvals[which(finite_x$ec_list == "Translocase")] <- 'cyan'
+  keyvals[which(finite_x$ec_list == "Translocase")] <- 'purple3'
   names(keyvals)[(finite_x$ec_list == "Translocase")] <- 'Translocase'
 
   EnhancedVolcano <- function (toptable, lab, x, y, selectLab = NULL, xlim = c(min(toptable[,
@@ -343,7 +346,10 @@ plot <- EnhancedVolcano(LFQ_table_ec,
                   transcriptLabSize = 3,
                   col=c('black',"black","black" ,'red3'),
                   colAlpha = 1,
-                  legendVisible = FALSE)
+                  legendVisible = FALSE,
+                  drawConnectors = TRUE,
+                  widthConnectors = 0.5,
+                  colConnectors = 'darkgray')
 
 
 
