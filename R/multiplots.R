@@ -9,6 +9,7 @@
 #' @param max_total_mods      a integer as the maximal number of modifications on a single peptide, set for all chemical probes Note max_each_mod must not be less than max_total_mods
 #' @param quantitation_level  a string, must be either "peptide" or "protein"
 #' @param background_check    a boolean, FALSE = quantify probe-modified peptides, TRUE = quantify non-probe-modified peptides
+#' @param normalize_to        a string, must be either "sum_all", "mean_all", (normalize to all peptides) "sum_background", or "mean_background" (normalize to background/non-probe-modified peptides).
 #' @param xlim                a integer vector, such as c(-5, 5) for an x axis range of -5 to 5
 #' @param ylim                a integer vector, such as c(0, 5) for an y axis range of 0 to 5
 #' @param label_col_name      the input column name for labeling volcano plot data points such as "Gene.Names"
@@ -16,11 +17,11 @@
 #' @param FCcutoff            the fold change cutoff, Note for ABPP, we are only interested in negative fold change (Lower intensity at higher inhibitor concentration)
 #' @return  volcano plots
 #' @examples  multi_volcano_plots(raw = raw, meta = meta, name_probe_mod = c("Mod"),
-#'                    max_each_mod = 1, max_total_mods = 1, quantitation_level = "peptide" , background_check = FALSE,
+#'                    max_each_mod = 1, max_total_mods = 1, quantitation_level = "peptide" , background_check = FALSE, normalize_to = "mean_all",
 #'                    xlim = c(-10, 3), ylim = c(0, 5), label_col_name = "Gene.Names", pCutoff = 0.05, FCcutoff = -2)
 #' @export
-multi_volcano_plots <- function(raw = read.delim("modificationSpecificPeptides.txt", header=TRUE, sep="\t"), meta = read.delim("metadata.txt", header=TRUE, sep="\t"),
-                                name_probe_mod = c("Mod"), max_each_mod = 1, max_total_mods = 1, quantitation_level = "peptide" , background_check = FALSE,
+multi_volcano_plots <- function(raw = read.delim("modificationSpecificPeptides.txt", header=TRUE, sep="\t"), metadata = read.delim("metadata.txt", header=TRUE, sep="\t"),
+                                name_probe_mod = c("Mod"), max_each_mod = 1, max_total_mods = 1, quantitation_level = "peptide" , background_check = FALSE, normalize_to = NULL,
                                 xlim = c(-10, 3), ylim = c(0, 5), label_col_name = "Gene.Names", pCutoff = 0.05, FCcutoff = -2) {
 
 # Internal function generating multiple plots
@@ -65,7 +66,7 @@ multiplot <- function(plots, file, cols=2, layout=NULL) {
  log2fc <- NULL
  log10p <- -log10(pCutoff)
  log2fc <- -log2(abs(FCcutoff))
- LFQ_table <- pairwise_LFQ(raw = raw, meta = meta, name_probe_mod, max_each_mod = max_each_mod, max_total_mods = max_total_mods, quantitation_level = quantitation_level , background_check = background_check)
+ LFQ_table <- pairwise_LFQ(raw = raw, meta = meta, name_probe_mod, max_each_mod = max_each_mod, max_total_mods = max_total_mods, quantitation_level = quantitation_level , background_check = background_check, normalize_to = normalize_to)
  LFQ_table_ec <- append_ec_sites(LFQ_table, quantitation_level = quantitation_level)
  inhibitors <- as.character(unique(gsub("[0-9]", "", meta$Replicate.group)))
  pvalue_index <- grep("p-value", colnames(LFQ_table_ec))

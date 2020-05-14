@@ -12,6 +12,7 @@ multi_volcano_plots(
   max_total_mods = 1,
   quantitation_level = "peptide",
   background_check = FALSE,
+  normalize_to = NULL,
   xlim = c(-10, 3),
   ylim = c(0, 5),
   label_col_name = "Gene.Names",
@@ -31,6 +32,8 @@ multi_volcano_plots(
 \item{quantitation_level}{a string, must be either "peptide" or "protein"}
 
 \item{background_check}{a boolean, FALSE = quantify probe-modified peptides, TRUE = quantify non-probe-modified peptides}
+
+\item{normalize_to}{a string, must be either "sum_all", "mean_all", (normalize to all peptides) "sum_background", or "mean_background" (normalize to background/non-probe-modified peptides).}
 
 \item{xlim}{a integer vector, such as c(-5, 5) for an x axis range of -5 to 5}
 

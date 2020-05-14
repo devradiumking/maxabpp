@@ -28,6 +28,7 @@ install.packages("stringdist")
 install_github('btupper/rscripting')
 install.packages("stringr")
 install.packages("ggplot2")
+install.packages("ggrepel")
 ```  
 2. Load dependent R packages.
 ```{r}
@@ -36,6 +37,7 @@ library(stringdist)
 library(rscripting)
 library(stringr)
 library(ggplot2)
+library(ggrepel)
 ```  
 3. Call function pairwise_LFQ() on raw MaxQuant output ("modificationSpecificPeptides.txt" and a customized metadata file "metadata.txt" must be put in the folder set as the working directory) to obtain output1, for example:
 ```{r}
