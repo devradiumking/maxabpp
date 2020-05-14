@@ -16,7 +16,7 @@
 #' @param pCutoff             the p-Value cutoff, for instance, default p-value = 0.05
 #' @param FCcutoff            the fold change cutoff, Note for ABPP, we are only interested in negative fold change (Lower intensity at higher inhibitor concentration)
 #' @return  volcano plots
-#' @examples  multi_volcano_plots(raw = raw, meta = meta, name_probe_mod = c("Mod"),
+#' @examples  multi_volcano_plots(raw = raw, metadata = metadata, name_probe_mod = c("Mod"),
 #'                    max_each_mod = 1, max_total_mods = 1, quantitation_level = "peptide" , background_check = FALSE, normalize_to = "mean_all",
 #'                    xlim = c(-10, 3), ylim = c(0, 5), label_col_name = "Gene.Names", pCutoff = 0.05, FCcutoff = -2)
 #' @export
@@ -66,9 +66,9 @@ multiplot <- function(plots, file, cols=2, layout=NULL) {
  log2fc <- NULL
  log10p <- -log10(pCutoff)
  log2fc <- -log2(abs(FCcutoff))
- LFQ_table <- pairwise_LFQ(raw = raw, meta = meta, name_probe_mod, max_each_mod = max_each_mod, max_total_mods = max_total_mods, quantitation_level = quantitation_level , background_check = background_check, normalize_to = normalize_to)
+ LFQ_table <- pairwise_LFQ(raw = raw, metadata = metadata, name_probe_mod, max_each_mod = max_each_mod, max_total_mods = max_total_mods, quantitation_level = quantitation_level , background_check = background_check, normalize_to = normalize_to)
  LFQ_table_ec <- append_ec_sites(LFQ_table, quantitation_level = quantitation_level)
- inhibitors <- as.character(unique(gsub("[0-9]", "", meta$Replicate.group)))
+ inhibitors <- as.character(unique(gsub("[0-9]", "", metadata$Replicate.group)))
  pvalue_index <- grep("p-value", colnames(LFQ_table_ec))
  fc_index <- grep("fold_change", colnames(LFQ_table_ec))
  plots <- NULL

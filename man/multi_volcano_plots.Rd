@@ -6,7 +6,7 @@
 \usage{
 multi_volcano_plots(
   raw = read.delim("modificationSpecificPeptides.txt", header = TRUE, sep = "\\t"),
-  meta = read.delim("metadata.txt", header = TRUE, sep = "\\t"),
+  metadata = read.delim("metadata.txt", header = TRUE, sep = "\\t"),
   name_probe_mod = c("Mod"),
   max_each_mod = 1,
   max_total_mods = 1,
@@ -22,6 +22,8 @@ multi_volcano_plots(
 }
 \arguments{
 \item{raw}{a dataframe by reading modificationSpecificPeptides.txt}
+
+\item{metadata}{a dataframe that maches the MaxQuant input. Column 1: Intensity (such as Intensity samplename, same as the column names in modificationSpecificPeptides.txt) name Column 2: Replicate group (use the same name for each group of replicates)}
 
 \item{name_probe_mod}{a string vector of chemical probe/modification names, such as c("Mod1", "Mod2"), must match MaxQuant input}
 
@@ -44,8 +46,6 @@ multi_volcano_plots(
 \item{pCutoff}{the p-Value cutoff, for instance, default p-value = 0.05}
 
 \item{FCcutoff}{the fold change cutoff, Note for ABPP, we are only interested in negative fold change (Lower intensity at higher inhibitor concentration)}
-
-\item{metadata}{a dataframe that maches the MaxQuant input. Column 1: Intensity (such as Intensity samplename, same as the column names in modificationSpecificPeptides.txt) name Column 2: Replicate group (use the same name for each group of replicates)}
 }
 \value{
 volcano plots
@@ -54,8 +54,8 @@ volcano plots
 multi_volcano_plots: directly converts MaxQuant output to multiple volcano plots
 }
 \examples{
- multi_volcano_plots(raw = raw, meta = meta, name_probe_mod = c("Mod"),
-                   max_each_mod = 1, max_total_mods = 1, quantitation_level = "peptide" , background_check = FALSE,
+ multi_volcano_plots(raw = raw, metadata = metadata, name_probe_mod = c("Mod"),
+                   max_each_mod = 1, max_total_mods = 1, quantitation_level = "peptide" , background_check = FALSE, normalize_to = "mean_all",
                    xlim = c(-10, 3), ylim = c(0, 5), label_col_name = "Gene.Names", pCutoff = 0.05, FCcutoff = -2)
 }
 \seealso{
