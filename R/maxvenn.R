@@ -118,10 +118,10 @@ VennFromSets_individual <- function(setList) {
       nsets <- length(sets_of_protein_groups)
       c <- vector(mode = "list", length = nsets)
       names(c) <- names(sets_of_protein_groups)
-      foreach(n = 1:nsets) %dopar%
+      foreach(n = 1:nsets, .packages = "maxabpp") %dopar%
       {
         #Convert a string of grouped proteins into a vector of individual protein components for each protein group from each set to be compared against
-        foreach(j = 1:length(sets_of_protein_groups[[n]])) %dopar%
+        foreach(j = 1:length(sets_of_protein_groups[[n]]), .packages = "maxabpp") %dopar%
         {
           group_from_sets <- str_split(sets_of_protein_groups[[n]],"\\;")[[j]]
           c[[n]]  <- 0
