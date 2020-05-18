@@ -1,3 +1,4 @@
+
 #main
 #######################################################################
 setClass("Venn",
@@ -46,6 +47,7 @@ Max_Venn <- function(Sets,Weight,SetNames,numberOfSets,IndividualAnalysis) {
 }
 
 #Function that calculates overlaps
+
 VennFromSets_group <- function(setList) {
   SetNames <- names(setList)
   if (is.null(SetNames)) { SetNames <- seq_along(setList) }
@@ -54,7 +56,9 @@ VennFromSets_group <- function(setList) {
   IntersectionSets <- sapply(1:length(VIsig),function(x)NULL)
   names(IntersectionSets) <- VIsig
   universe <- NULL
-  for ( iset in setList) { universe <- union (universe,iset) }
+  for (iset in setList) {
+    universe <- union(universe,iset)
+  }
   for (element in universe) {
     sig <- as.numeric(!is.na(sapply(setList,match,x=element)))
     sig <- paste(sig,collapse="")
@@ -67,6 +71,7 @@ VennFromSets_group <- function(setList) {
   Vres
 }
 #If individual proteins within a protein group match, venn overlap is considered
+
 VennFromSets_individual <- function(setList) {
   SetNames <- names(setList)
   if (is.null(SetNames)) { SetNames <- seq_along(setList) }
@@ -76,29 +81,56 @@ VennFromSets_individual <- function(setList) {
   names(IntersectionSets) <- VIsig
   #Comparing sets from here
   universe <- NULL
-  for ( iset in setList) { universe <- union (universe,iset) }
+  for (iset in setList) {
+    universe <- union(universe,iset)
+    }
   for (element in universe) {
     #Match each element in combined sets universe to selected element: TRUE = 1, FALSE = 0
+    #overlap <- function(one_protein_group, sets_of_protein_groups)
+    #{
+    #  proteins <- str_split(one_protein_group,"\\;")[[1]]
+    #  nsets <- length(sets_of_protein_groups)
+    #  c <- vector(mode = "list", length = nsets)
+    #  names(c) <- names(setList)
+    #  for (n in 1:nsets)
+    #  {
+    #    c[[n]] <- 0
+    #    for (each_protein in proteins)
+    #    {
+    #      #Separate proteins in each group of each set of protein groups as well
+    #      c[[n]] <- sum(c[[n]], as.numeric(str_detect(sets_of_protein_groups[[n]],each_protein)))
+    #      if (c[[n]] > 0) {
+    #        c[[n]]  <- 1
+    #      } else {
+    #        c[[n]]  <- 0
+    #      }
+    #    }
+    #  }
+    #  return(c)
+    #}
+    #one_protein_group <- c("a;b")
+    #sets_of_protein_groups <- list("set1" = c("a;b","c","d"), "set2" = c("a","c","d"), "set3" = c("c", "d"))
     overlap <- function(one_protein_group, sets_of_protein_groups)
     {
+      #Convert a string of grouped proteins into a vector of individual protein components for each protein from the protein group selected for comparison
       proteins <- str_split(one_protein_group,"\\;")[[1]]
       nsets <- length(sets_of_protein_groups)
       c <- vector(mode = "list", length = nsets)
-      names(c) <- names(setList)
-      for (n in 1:nsets)
+      names(c) <- names(sets_of_protein_groups)
+      foreach(n = 1:nsets) %dopar%
       {
-        c[[n]] <- 0
-        for (each_protein in proteins)
+        #Convert a string of grouped proteins into a vector of individual protein components for each protein group from each set to be compared against
+        foreach(j = 1:length(sets_of_protein_groups[[n]])) %dopar%
         {
-          c[[n]] <- sum(c[[n]], as.numeric(str_detect(sets_of_protein_groups[[n]],each_protein)))
-          if (c[[n]] > 0) {
+          group_from_sets <- str_split(sets_of_protein_groups[[n]],"\\;")[[j]]
+          c[[n]]  <- 0
+          #Conditional statement to test if there is common protein component(s)
+          if (length(intersect(proteins, group_from_sets)) > 0) {
             c[[n]]  <- 1
-          } else {
-            c[[n]]  <- 0
           }
         }
       }
-      return(c)
+    return(c)
     }
     sig <- unlist(overlap(element,setList))
     sig <- paste(sig,collapse="")
@@ -524,7 +556,7 @@ compute.E4 <- function(V,doWeights=FALSE,s=.25,dx=0.2) {
   env <- new.env()
   loaded <- data(ellipses,envir=env)
   stopifnot("ellipses" %in% loaded)
-  TM <- ellipses[[n]]
+  TM <- ellipses
   VD <- new("VennDrawing",TM,V)
   SetLabels <- .default.SetLabelPositions(VD)
   VD <- VennSetSetLabels(VD,SetLabels)
