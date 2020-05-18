@@ -1,10 +1,11 @@
 
 #main
 #######################################################################
+#'@export
 setClass("Venn",
          representation( IndicatorWeight="matrix",IntersectionSets="list")
 )
-
+#'@export
 Max_Venn <- function(Sets,Weight,SetNames,numberOfSets,IndividualAnalysis) {
   if (!missing(Sets)) {
     if (is.null(names(Sets)) & !missing(SetNames)) {
@@ -47,7 +48,7 @@ Max_Venn <- function(Sets,Weight,SetNames,numberOfSets,IndividualAnalysis) {
 }
 
 #Function that calculates overlaps
-
+#'@export
 VennFromSets_group <- function(setList) {
   SetNames <- names(setList)
   if (is.null(SetNames)) { SetNames <- seq_along(setList) }
@@ -71,7 +72,7 @@ VennFromSets_group <- function(setList) {
   Vres
 }
 #If individual proteins within a protein group match, venn overlap is considered
-
+#'@export
 VennFromSets_individual <- function(setList) {
   SetNames <- names(setList)
   if (is.null(SetNames)) { SetNames <- seq_along(setList) }
@@ -149,27 +150,29 @@ setMethod("show","Venn",function(object){
   show(Weights(object))
 })
 
-#setGeneric("NumberOfSets",function(object){standardGeneric("NumberOfSets")})
-#setMethod("NumberOfSets","Venn",function(object){ncol(object@IndicatorWeight)-1})
-NumberOfSets <- function(object){ncol(object@IndicatorWeight)-1}
+#'@export
+NumberOfSets <- function(object)
+  {ncol(object@IndicatorWeight)-1}
+#'@export
 Indicator <- function(object){
   object <- as(object,"Venn")
   object@IndicatorWeight[,-ncol(object@IndicatorWeight),drop=FALSE]}
 
 #setGeneric("SetNames",function(object){standardGeneric("SetNames")})
-
+#'@export
 VennSignature<- function(object){
   ind <- Indicator(object)
   inn <- apply(ind,1,paste,collapse="")
   inn
 }
+#'@export
 Weights <- function(object) {
   V <- as(object,"Venn")
   wght <- V@IndicatorWeight[,".Weight"]
   names(wght) <- VennSignature(V)
   wght
 }
-
+#'@export
 "Weights<-" <- function(object,value) {
   V <- as(object,"Venn")
   VS <- VennSignature(V)
@@ -180,16 +183,16 @@ Weights <- function(object) {
   object@IndicatorWeight[,".Weight"] <- as.numeric(value)
   object
 }
-
+#'@export
 dark.matter.signature <- function(object) {
   V <- as(object,"Venn")
   VS <- VennSignature(V)
   VS[regexpr("1",VS)<0]
 }
 
-
-#setMethod("SetNames","Venn", function(object) {cn <- colnames(object@IndicatorWeight);cn[cn!=".Weight"] })
+#'@export
 VennSetNames <-  function(object) {cn <- colnames(object@IndicatorWeight);cn[cn!=".Weight"] }
+#'@export
 setMethod("[","Venn", function(x,i,j,...,drop) {
   if (!missing(i)) {
     stop("Can't subset on rows")
@@ -223,17 +226,18 @@ setMethod("[","Venn", function(x,i,j,...,drop) {
   }
   x
 })
-
+#'@export
 .WeightVisible <- function(V) {# excluding  elements not in any sets
   wght <- V@IndicatorWeight
   wghtsum <- apply(wght[,-ncol(wght)],1,sum)
   sum(wght[wghtsum>0,ncol(wght)])
 }
+#'@export
 .WeightUniverse <- function(V) {
   wght <- Weights(V)
   sum(wght)
 }
-
+#'@export
 plot_Max_Venn <- function(V,doWeights=TRUE,add=FALSE,
                      show=list(FaceText="weight",Faces=TRUE),
                      gpList){
@@ -266,6 +270,7 @@ plot_Max_Venn <- function(V,doWeights=TRUE,add=FALSE,
 #Venn module
 #######################################################################
 #Two sets
+#'@export
 TwoCircles <- function(r,d,V) {
   if (length(r) !=2 ) {
     if (length(r)==1 ) {
@@ -287,7 +292,7 @@ TwoCircles <- function(r,d,V) {
 
   V2
 }
-
+#'@export
 .circle.SetLabelPositions <- function(object,radii,centres){
   yscale <- diff(VisibleRange(object)[,2]);
   smidge <- 0.01*yscale
@@ -303,7 +308,7 @@ TwoCircles <- function(r,d,V) {
   VLabels$Label <- VennSetNames(as(object,"Venn"))
   VLabels
 }
-
+#'@export
 compute.C2 <- function(V,doWeights=TRUE) {
   doEuler=FALSE
   Vcalc <- V
@@ -326,7 +331,7 @@ compute.C2 <- function(V,doWeights=TRUE) {
   C2
 
 }
-
+#'@export
 .Venn.2.weighted.distance <- function(V,doEuler) {
   if (NumberOfSets(V) != 2) {
     stop(sprintf("Wrong number of sets (%d) in .Venn.2.weighted.distance",NumberOfSets(V)))
@@ -388,7 +393,7 @@ compute.C2 <- function(V,doWeights=TRUE) {
   list(r1=r1,r2=r2,d=d )
 
 }
-
+#'@export
 .twoCircleIntersectionPointsObsolete <- function(r,xy,i1=1,i2=2) {
   r <- r[c(i1,i2)]
   xy <- xy[c(i1,i2),]
@@ -413,6 +418,7 @@ compute.C2 <- function(V,doWeights=TRUE) {
   p12
 }
 #Three sets
+#'@export
 ThreeCircles <- function(r,x,y,d,angles,V) {
   if (missing(x) | missing(y)) {
     if (missing(d)) {
@@ -454,7 +460,7 @@ ThreeCircles <- function(r,x,y,d,angles,V) {
   SetLabels <- .circle.SetLabelPositions(C3,radii=r,centres=centres)
   C3 <- VennSetSetLabels(C3,SetLabels)
 }
-
+#'@export
 .pairwise.overlaps <- function(V) {
   VI <- Indicator(V)
   VIsum <- apply(VI,1,sum)
@@ -472,7 +478,7 @@ ThreeCircles <- function(r,x,y,d,angles,V) {
   Vpairs$Disjoint <- apply(Vindex,1,isdisjoint)
   Vpairs
 }
-
+#'@export
 compute.C3 <- function(V) {
   doWeights <- FALSE
   doEuler <- FALSE
@@ -550,6 +556,7 @@ compute.C3 <- function(V) {
 }
 
 #Four sets
+#'@export
 compute.E4 <- function(V,doWeights=FALSE,s=.25,dx=0.2) {
   if (doWeights) { warning("Cant do a weighted E4") }
   if (NumberOfSets(V) != 4) { stop("fournotfour")}
@@ -566,9 +573,8 @@ compute.E4 <- function(V,doWeights=FALSE,s=.25,dx=0.2) {
   VD
 
 }
-
+#'@export
 make.E4 <- function(dx=0.02) {
-
   phi <- 0.8; dex <- 1.5;dey <- 2.5; a<- 7.6; e<- 0.9
   x0 <- c( -0.9, -5.0)
   VE <- list()
@@ -587,48 +593,52 @@ make.E4 <- function(dx=0.02) {
 
 #Graphics module1
 #######################################################################
-##warning("Entering 02TissueDrawing")
-# # $Id: 02Drawing.R,v 1.1 2007/10/16 10:59:52 js229 Exp $
 
-# $Log: 02Drawing.R,v $
-
+#'@export
 setGeneric("PlotSetBoundaries",function(drawing,gp){standardGeneric("PlotSetBoundaries")})
+#'@export
 setGeneric("PlotNodes",function(drawing,gp){standardGeneric("PlotNodes")})
+#'@export
 setGeneric("PlotFaces",function(drawing,faceNames,gp,arrow,colourAlgorithm){standardGeneric("PlotFaces")})
-
-
 
 
 #Graphics module2
 #######################################################################
+#'@export
 setClass("VDedgeDrawn",representation(from="character",to="character",visible="logical",bb="matrix"),
          prototype(from=character(0),to=character(0),visible=TRUE))
 
 ## these generics have methods for all edge types inheriting from VDedgeDrawn
 # called only within this file and documentation vignette
+#'@export
 setGeneric(".identical",function(edge1,edge2){standardGeneric(".identical")})
+#'@export
 setGeneric(".reverseEdge",function(edge){standardGeneric(".reverseEdge")})
+#'@export
 setGeneric(".midpoint",function(edge)standardGeneric(".midpoint"))
+#'@export
 setGeneric(".checkPointOnEdge",function(edge,point.xy)standardGeneric(".checkPointOnEdge"))
+#'@export
 setGeneric(".splitEdgeAtPoint",function(edge,point.xy)standardGeneric(".splitEdgeAtPoint"))
+#'@export
 setGeneric(".findIntersectionByType",function(edge1,edge2){standardGeneric(".findIntersectionByType")})
+#'@export
 setGeneric(".edge.to.xy",function(edge,dx){standardGeneric(".edge.to.xy")})
 
-
+#'@export
 setClass("VDedgeSector",representation("VDedgeDrawn",
                                        radius="numeric",fromTheta="numeric",toTheta="numeric",centre="numeric",hand="numeric"))
+#'@export
 setClass("VDedgeLines",representation("VDedgeDrawn",xy="matrix"))
-# not implemented:
-#setClass("VDedgeFunction",representation(Set="numeric",s="numeric",f="function"))
 
-
+#'@export
 setMethod("show","VDedgeDrawn",function(object) {
   res <- c(from=object@from,to=object@to,visible=object@visible)
   show(res)
   invisible(	object)
 })
 
-
+#'@export
 setMethod("show","VDedgeSector",function(object) {
   show(as(object,"VDedgeDrawn"))
   res <- c(centre=paste(object@centre,collapse=","),
@@ -637,7 +647,7 @@ setMethod("show","VDedgeSector",function(object) {
   invisible(	object)
 })
 
-
+#'@export
 setMethod(".identical",c("VDedgeSector","VDedgeSector"), function(edge1,edge2) {
   fequal(edge1@radius,edge2@radius) &
     fequal(edge1@fromTheta,edge2@fromTheta) &
@@ -645,18 +655,20 @@ setMethod(".identical",c("VDedgeSector","VDedgeSector"), function(edge1,edge2) {
     all(fequal(edge1@centre,edge2@centre)) &
     fequal(edge1@hand,edge2@hand)
 })
-
+#'@export
 setMethod(".identical",c("VDedgeLines","VDedgeLines"), function(edge1,edge2) {
   if (nrow(edge1@xy) != nrow(edge2@xy)) return(FALSE)
   all(fequal(edge1@xy,edge2@xy))
 })
+#'@export
 setMethod(".identical",c("VDedgeSector","VDedgeLines"), function(edge1,edge2) {
   return(FALSE)
 })
+#'@export
 setMethod(".identical",c("VDedgeLines","VDedgeSector"), function(edge1,edge2) {
   return(FALSE)
 })
-
+#'@export
 .findIntersection<- function(edge1,edge2) {
   bb1 <- edge1@bb; bb2 <- edge2@bb;	smudge <-  (.Machine$double.eps ^ 0.5)
 
@@ -672,8 +684,7 @@ setMethod(".identical",c("VDedgeLines","VDedgeSector"), function(edge1,edge2) {
   found
 }
 
-
-
+#'@export
 newEdgeSector <- function(centre,hand=1,from,to,fromTheta,toTheta,radius,visible=TRUE) {
   if (missing (from)) { from <- "p1" }
   if (missing (to)) if ( fequal( (fromTheta-toTheta) %% (2 * pi),0)) { to <- from } else { to <- "p2"}
@@ -681,7 +692,7 @@ newEdgeSector <- function(centre,hand=1,from,to,fromTheta,toTheta,radius,visible
   lh <- new("VDedgeSector",centre=centre,hand=hand,from=from,to=to,fromTheta=fromTheta,toTheta=toTheta,radius=radius,visible=visible,bb=bb)
   lh
 }
-
+#'@export
 newEdgeLines <- function(from,to,xy,visible=TRUE) {
   bb <- rbind(apply(xy,2,min),apply(xy,2,max))
   lh  <- new("VDedgeLines",from=from,to=to,xy=xy,visible=visible,bb=bb)
@@ -689,7 +700,7 @@ newEdgeLines <- function(from,to,xy,visible=TRUE) {
 }
 
 
-
+#'@export
 setMethod("show","VDedgeLines",function(object) {
   show(as(object,"VDedgeDrawn"))
   res <- c(npoints=nrow(object@xy))
@@ -697,7 +708,7 @@ setMethod("show","VDedgeLines",function(object) {
   invisible(	object)
 })
 
-
+#'@export
 .find.sector.sector.intersection <- function(edge1,edge2) {
   r1 <- edge1@radius
   r2 <- edge2@radius
@@ -744,10 +755,11 @@ setMethod("show","VDedgeLines",function(object) {
 
   intersectionPoints
 }
+#'@export
 setMethod(".findIntersectionByType",c("VDedgeSector","VDedgeSector"), .find.sector.sector.intersection)
-
+#'@export
 .det2 <- function(m) { m[1,1] * m[2,2] - m[1,2]* m[2,1] }
-
+#'@export
 .find.linear.intersection <- function(xy1,xy2) {
 
   # See Mathworld line-line intersection
@@ -790,7 +802,7 @@ setMethod(".findIntersectionByType",c("VDedgeSector","VDedgeSector"), .find.sect
 
 
 }
-
+#'@export
 .find.linear.circle.intersection <- function(xy,sector) {
   intersectionPoints <- matrix(nrow=0,ncol=2)
   xr <- sector@centre[1]; yr <- sector@centre[2]
@@ -847,7 +859,7 @@ setMethod(".findIntersectionByType",c("VDedgeSector","VDedgeSector"), .find.sect
   intersectionPoints
 }
 
-
+#'@export
 setMethod(".findIntersectionByType",c("VDedgeLines","VDedgeSector"), function(edge1,edge2) {
   # first find all the intersection points assuming infinite line and complete circle
   intersectionPoints <- matrix(nrow=0,ncol=2)
@@ -869,8 +881,9 @@ setMethod(".findIntersectionByType",c("VDedgeLines","VDedgeSector"), function(ed
   intersectionPoints
 }
 )
+#'@export
 setMethod(".findIntersectionByType",c("VDedgeSector","VDedgeLines"), function(edge1,edge2).findIntersectionByType(edge2,edge1))
-
+#'@export
 .find.linear.linear.intersection <-  function(edge1,edge2) {
   intersectionPoints <- matrix(nrow=0,ncol=2)
   for(i1 in 1:(nrow(edge1@xy)-1)) {
@@ -884,8 +897,9 @@ setMethod(".findIntersectionByType",c("VDedgeSector","VDedgeLines"), function(ed
   intersectionPoints <- .removeDuplicates(intersectionPoints )
   intersectionPoints
 }
+#'@export
 setMethod(".findIntersectionByType",c("VDedgeLines","VDedgeLines"),.find.linear.linear.intersection)
-
+#'@export
 .removeDuplicates <- function(xypoints) {
   if (nrow(xypoints)<2) {return(xypoints)}
   for (ix in 1:(nrow(xypoints)-1)) {
@@ -903,8 +917,9 @@ setMethod(".findIntersectionByType",c("VDedgeLines","VDedgeLines"),.find.linear.
   xypoints <- xypoints[!is.na(xypoints[,1]),,drop=FALSE]
 }
 
-
+#'@export
 setGeneric("joinEdges",function(object1,object2)standardGeneric("joinEdges"))
+#'@export
 setMethod("joinEdges",c("VDedgeLines","VDedgeLines"),function(object1,object2).join.lines(object1,object2))
 .join.lines <- function(object1,object2) {
   # assumes they do join!
@@ -913,6 +928,7 @@ setMethod("joinEdges",c("VDedgeLines","VDedgeLines"),function(object1,object2).j
   newEdge <- newEdgeLines(from=object1@from,to=object2@to,visible=visibility[1],xy=xy)
   newEdge
 }
+#'@export
 setMethod("joinEdges",c("VDedgeSector","VDedgeSector"),function(object1,object2).join.arcs(object1,object2))
 .join.arcs <- function(object1,object2) {
   # assumes they do join and have same radius centre and hand (and as a side effect will have the same bb)
@@ -929,19 +945,20 @@ setMethod("joinEdges",c("VDedgeSector","VDedgeSector"),function(object1,object2)
   newEdge@to <- object2@to
   newEdge
 }
-
+#'@export
 .point.xy.to.theta <- function(point,centre) {
   pointCentre <- as.numeric(point)-centre
   theta <- atan2(pointCentre[2],pointCentre[1])
   #	theta <- -theta
   theta <- theta %% ( 2* pi)
 }
+#'@export
 .theta.to.point.xy <- function(theta,r,centre) {
   #	theta <- -theta
   x <- r* cos(theta)+centre[1];y <- r*sin(theta)+centre[2]
   cbind(x,y)
 }
-
+#'@export
 sector.to.xy <-  function(edge,dx=.05) {
   r <- edge@radius;
   hand <- edge@hand
@@ -961,7 +978,7 @@ sector.to.xy <-  function(edge,dx=.05) {
   theta <- seq(from=thetafrom,to=thetato,length=nintervals)
   xy <- .theta.to.point.xy(theta,r,edge@centre)
 }
-
+#'@export
 .normalise.sector <- function(edge) {
   # we guarantee 2pi>from>0 and from>to>-2pi
   stopifnot(edge@fromTheta>=0 & edge@fromTheta<=2*pi)
@@ -971,17 +988,20 @@ sector.to.xy <-  function(edge,dx=.05) {
   stopifnot(edge@fromTheta>=edge@toTheta & edge@toTheta>=-2*pi)
   edge
 }
-
+#'@export
 setMethod(".edge.to.xy",c("VDedgeSector","numeric"),
           function(edge,dx){sector.to.xy(edge)})
+#'@export
 setMethod(".edge.to.xy",c("VDedgeSector","missing"),
           function(edge,dx){sector.to.xy(edge)})
+#'@export
 setMethod(".edge.to.xy",c("VDedgeLines","numeric"),
           function(edge,dx) {	edge@xy})
+#'@export
 setMethod(".edge.to.xy",c("VDedgeLines","missing"),
           function(edge,dx) {edge@xy})
 
-
+#'@export
 setMethod(".reverseEdge","VDedgeLines",function(edge){
   edge@xy <- edge@xy[ rev(seq_len(nrow(edge@xy))),]
   temp <- edge@from
@@ -989,6 +1009,7 @@ setMethod(".reverseEdge","VDedgeLines",function(edge){
   edge@to <- temp
   edge
 })
+#'@export
 setMethod(".reverseEdge","VDedgeSector",function(edge){
   edge@hand <- - edge@hand
   temp <- edge@from
@@ -1000,10 +1021,7 @@ setMethod(".reverseEdge","VDedgeSector",function(edge){
   edge
 })
 
-
-
-
-
+#'@export
 setMethod(".checkPointOnEdge",c("VDedgeSector"),function(edge,point.xy) {
   r <- edge@radius
   rp <- sqrt( sum( (point.xy - edge@centre)^2))
@@ -1023,11 +1041,11 @@ setMethod(".checkPointOnEdge",c("VDedgeSector"),function(edge,point.xy) {
 
 }
 )
-
+#'@export
 fequal <- function(x,y) {
   abs(x-y) < (.Machine$double.eps ^ 0.5)
 }
-
+#'@export
 .find.point.on.EdgeLines <- function(edge,point.xy) {
   ison <- FALSE
   for (nix in 1:(nrow(edge@xy)-1)) {
@@ -1053,13 +1071,13 @@ fequal <- function(x,y) {
   }
   if (ison) { return(nix) } else { return(NA) }
 }
-
+#'@export
 setMethod(".checkPointOnEdge",c("VDedgeLines"),function(edge,point.xy) {
   return(!is.na(.find.point.on.EdgeLines(edge,point.xy)))
 }
 )
 
-
+#'@export
 .face.midplace <- function(drawing,faceName) {
   # try forming the centroid of the points at the midplace of each edge
   #	browser()
@@ -1071,7 +1089,7 @@ setMethod(".checkPointOnEdge",c("VDedgeLines"),function(edge,point.xy) {
   midpoints.centroid
 }
 
-
+#'@export
 setMethod(".splitEdgeAtPoint",c("VDedgeSector"),function(edge,point.xy) {
   new1 <- edge
   new2 <- edge
@@ -1103,7 +1121,7 @@ setMethod(".splitEdgeAtPoint",c("VDedgeSector"),function(edge,point.xy) {
   list(new1,new2)
 })
 
-
+#'@export
 setMethod(".splitEdgeAtPoint",c("VDedgeLines"),function(edge,point.xy) {
   nix <- .find.point.on.EdgeLines(edge,point.xy)
   if (is.na(nix)){ stop(sprintf("%s is not in edge",rownames(point.xy))) }
@@ -1128,7 +1146,7 @@ setMethod(".splitEdgeAtPoint",c("VDedgeLines"),function(edge,point.xy) {
   list(new1,new2)
 })
 
-
+#'@export
 spliceinstead <- function(vec,old,new) {
   medge <- match(old,vec)
   if (all(is.na(medge))) {
@@ -1142,7 +1160,7 @@ spliceinstead <- function(vec,old,new) {
 
 
 
-
+#'@export
 setMethod(".midpoint",c("VDedgeLines"),function(edge){
   edgexy <- .edge.to.xy(edge)
   if (nrow(edgexy)%%2 == 1) {
@@ -1156,16 +1174,18 @@ setMethod(".midpoint",c("VDedgeLines"),function(edge){
   midmean <- matrix(apply(midx,2,mean),ncol=2)
   midmean
 })
+#'@export
 setMethod(".midpoint",c("VDedgeSector"),function(edge){
   theta <- (edge@fromTheta+edge@toTheta)/2
   point.xy <- .theta.to.point.xy(theta,r=edge@radius,centre=edge@centre)
   point.xy
 })
 
-
+#'@export
 setClass("TDEdgeList",representation(edgeList="list"))
+#'@export
 setClass("TDFaceList",representation(faceList="list",faceSignature="list")) # of the same length; the name of the face is its name in the list
-
+#'@export
 .faceNames <- function(drawing,onlyVisible=FALSE) {
   faceNames <- names(drawing@faceList )
   if (onlyVisible) {
@@ -1173,6 +1193,7 @@ setClass("TDFaceList",representation(faceList="list",faceSignature="list")) # of
   }
   faceNames
 }
+#'@export
 .faceSignatures <- function(drawing,onlyVisible=FALSE) {
   faceSignatures <- drawing@faceSignature
   if (onlyVisible) {
@@ -1181,7 +1202,7 @@ setClass("TDFaceList",representation(faceList="list",faceSignature="list")) # of
   faceSignatures
 }
 
-
+#'@export
 updateSignature <- function(drawing,faceNames,suffix) {
   for (faceName in faceNames) {
     sig <- drawing@faceSignature[[faceName]]
@@ -1194,13 +1215,14 @@ updateSignature <- function(drawing,faceNames,suffix) {
   }
   drawing
 }
+#'@export
 setSignature <- function(drawing,faceName,signature) {
   drawing@faceSignature[[faceName]] <- signature
   drawing
 }
 
 
-
+#'@export
 .faceEdgeNames <- function(drawing,faceName,unsigned=FALSE,type="face") {
   if (type=="set") {
     edges <- drawing@setList[[faceName]]
@@ -1211,7 +1233,7 @@ setSignature <- function(drawing,faceName,signature) {
 
   edges
 }
-
+#'@export
 .faceEdgeClasses <- function(drawing,faceName,type="face") {
   if (type=="set") {
     edges <- drawing@setList[[faceName]]
@@ -1223,7 +1245,7 @@ setSignature <- function(drawing,faceName,signature) {
   res
 }
 
-
+#'@export
 renameFaces <- function(drawing,oldName,newName) {
   stopifnot(length(oldName) == length(newName))
   oldFaceNames <- names(drawing@faceList)
@@ -1250,7 +1272,7 @@ renameFaces <- function(drawing,oldName,newName) {
   drawing
 }
 
-
+#'@export
 setMethod("show","TDFaceList",function(object){
   facedf <- do.call(rbind,lapply(object@faceList,function(face){
     data.frame(faces=paste(face,collapse=";"))}))
@@ -1259,9 +1281,7 @@ setMethod("show","TDFaceList",function(object){
   print(sdf)
 })
 
-
-
-
+#'@export
 spliceEdgeIntoFace <- function(drawing,faceName,edgeName,edgeNames,doReverse=TRUE) {
   revEdgeName <- sub("^--","",paste("-",edgeName,sep=""))
   revEdgeNames <- rev(sub("^--","",paste("-",edgeNames,sep="")))
@@ -1275,7 +1295,7 @@ spliceEdgeIntoFace <- function(drawing,faceName,edgeName,edgeNames,doReverse=TRU
   drawing
 }
 
-
+#'@export
 .startFaceAtPoint <- function(drawing,faceName,from) {
   FacePoints <-  .points.of.face (drawing,faceName)
   fromix=match(from,FacePoints)
@@ -1287,7 +1307,7 @@ spliceEdgeIntoFace <- function(drawing,faceName,edgeName,edgeNames,doReverse=TRU
 }
 
 
-
+#'@export
 addFace <- function(drawing,faceName,faceSignature,face,edit=FALSE) {
   #cat(sprintf("Adding face %s\n",faceName))
   newfaceName <- faceName
@@ -1307,13 +1327,13 @@ addFace <- function(drawing,faceName,faceSignature,face,edit=FALSE) {
   drawing@faceSignature[[newfaceName ]] <- faceSignature
   list(drawing=drawing,faceName=newfaceName)
 }
-
+#'@export
 deleteFace <- function(drawing,faceName) {
   drawing@faceList[[faceName]] <- NULL
   drawing@faceSignature[[faceName]] <- NULL
   drawing
 }
-
+#'@export
 getFace <- function(drawing,faceName,reverse=FALSE) {
   res <-drawing@faceList[[faceName]]
   if (reverse) {
@@ -1324,7 +1344,7 @@ getFace <- function(drawing,faceName,reverse=FALSE) {
 }
 
 
-
+#'@export
 setClass("TissueDrawing",representation(
   "TDEdgeList", # named list of VDedgeDrawns
   "TDFaceList", # named list of (edge,hand) pairs
@@ -1336,7 +1356,7 @@ setClass("TissueDrawing",representation(
 
 
 # nb dont currently require that all edges in edge list are actually used in faceList
-
+#'@export
 .validateFaces <- function(drawing) {
   cat(sprintf("Validating a drawing on %d sets...",length(drawing@setList)))
 
@@ -1361,7 +1381,7 @@ setClass("TissueDrawing",representation(
   }
   cat(sprintf("...done\n"))
 }
-
+#'@export
 .validateDrawing <- function(drawing) {
   .validateFaces(drawing)
   for (set.name in names(drawing@setList )) {
@@ -1409,7 +1429,7 @@ setClass("TissueDrawing",representation(
   }
 }
 
-
+#'@export
 setMethod("show","TissueDrawing",function(object){
   edgedf <- do.call(rbind,lapply(object@edgeList,
                                  function(edge) {
@@ -1434,7 +1454,7 @@ setMethod("show","TissueDrawing",function(object){
 })
 
 
-
+#'@export
 .VDPlotArcs <- function(drawing,arcnames,arrowfunc=NULL,gp=gpar()) {
   drawing<-  as(drawing,"TissueDrawing")
   edgeList <- drawing@edgeList
@@ -1457,7 +1477,7 @@ setMethod("show","TissueDrawing",function(object){
 }
 
 
-
+#'@export
 .PlotSetBoundaries.TissueDrawing <- function(drawing,gp){
   #browser()
   drawing <- as(drawing,"TissueDrawing")
@@ -1470,10 +1490,10 @@ setMethod("show","TissueDrawing",function(object){
     .VDPlotArcs(drawing,setList[[setName]],gp=gp[[setName]])
   }
 }
-
+#'@export
 setMethod("PlotSetBoundaries","TissueDrawing",.PlotSetBoundaries.TissueDrawing)
 
-
+#'@export
 setMethod("PlotNodes","TissueDrawing",function(drawing,gp){
   dv <- as(drawing,"TissueDrawing")
   pxy <- dv@nodeList
@@ -1481,7 +1501,7 @@ setMethod("PlotNodes","TissueDrawing",function(drawing,gp){
   grid.text(x=xy[,1],y=xy[,2],label=names(pxy),default.units="native",
             just=c("left","bottom"))
 })
-
+#'@export
 .face.to.faceEdges <-  function(drawing,faceName,type="face") {
   if (type=="set") {
     faceEdgeNames <- drawing@setList[[faceName]]
@@ -1499,7 +1519,7 @@ setMethod("PlotNodes","TissueDrawing",function(drawing,gp){
   faceEdges[faceSign] <- lapply(faceEdges[faceSign],.reverseEdge)
   faceEdges
 }
-
+#'@export
 .face.toxy <- function(drawing,faceName,dx=0.05,type="face") {
   faceEdges <- .face.to.faceEdges(drawing,faceName,type=type)
   face.Sxy <- lapply(faceEdges,function(x).edge.to.xy(x,dx=dx))
@@ -1509,12 +1529,12 @@ setMethod("PlotNodes","TissueDrawing",function(drawing,gp){
   all.xy
 }
 
-
+#'@export
 .face.area <- function(drawing,faceName) {
   all.xy <- .face.toxy(drawing,faceName);
   .polygon.area(all.xy)
 }
-
+#'@export
 .polygon.area <- function(xy) {
   # this area is negative for clockwise polygons, sigh
   xy1 <- xy; xy2 <- xy[ c(2:nrow(xy),1),]
@@ -1523,11 +1543,11 @@ setMethod("PlotNodes","TissueDrawing",function(drawing,gp){
   (sum(det)/2)
 
 }
-
+#'@export
 faceAreas <- function(drawing) {
   sapply(.faceNames(drawing),function(faceName)abs(.face.area(drawing,faceName)))
 }
-
+#'@export
 .polygon.centroid <- function(all.xy) {
   xy1 <- all.xy; xy2 <- all.xy[ c(2:nrow(all.xy),1),]
   x1 <- xy1[,1];y1 <-xy1[,2];x2<-xy2[,1];y2<- xy2[,2]
@@ -1541,14 +1561,14 @@ faceAreas <- function(drawing) {
   centroid.xy <- matrix(c(cx,cy),ncol=2)
   centroid.xy
 }
-
+#'@export
 .face.centroid <- function(drawing,faceName) {
   all.xy <- .face.toxy(drawing,faceName)
   res <- .polygon.centroid(all.xy)
   names(res) <- "centroid"
   res
 }
-
+#'@export
 .PlotFace.TissueDrawing <- function(drawing,faceName,dx=0.05,gp=gpar(),doDarkMatter=FALSE) {
   #cat(faceName,"\n")
   if (!doDarkMatter & faceName=="DarkMatter") {
@@ -1573,7 +1593,7 @@ faceAreas <- function(drawing) {
     })
   }
 }
-
+#'@export
 .PlotFaceNames.TissueDrawing <- function(drawing,faceNames,signature=TRUE){
   if(missing(faceNames)) {
     faceNames <- .faceNames(drawing,onlyVisible=TRUE)
@@ -1591,7 +1611,7 @@ faceAreas <- function(drawing) {
   }
 }
 
-
+#'@export
 .PlotFaces.TissueDrawing<- function(drawing,faceNames,gp,arrow,colourAlgorithm){
   if(missing(faceNames)) {
     faceNames <- .faceNames(drawing)
@@ -1604,9 +1624,9 @@ faceAreas <- function(drawing) {
     .PlotFace.TissueDrawing(drawing,faceName,gp=gp[[faceName]])
   }
 }
-
+#'@export
 setMethod("PlotFaces","TissueDrawing",.PlotFaces.TissueDrawing)
-
+#'@export
 .find.point.on.face <- function(drawing,faceName) {
   edgeName <- .faceEdgeNames(drawing,faceName)[1]
   edgeName <- sub("^-","",edgeName)
@@ -1614,7 +1634,7 @@ setMethod("PlotFaces","TissueDrawing",.PlotFaces.TissueDrawing)
   point <- .midpoint(edge)
   point
 }
-
+#'@export
 .face.maxradius <- function(drawing,faceName) {
   edgebb <- lapply(.face.to.faceEdges(drawing,faceName),function(x)x@bb)
   absbb <- max(sapply(edgebb,function(x)max(abs(x))))
@@ -1622,7 +1642,7 @@ setMethod("PlotFaces","TissueDrawing",.PlotFaces.TissueDrawing)
   maxradius
 }
 
-
+#'@export
 .find.point.within.face <- function(drawing,faceName,treat.dark.matter.as.face=FALSE) {
   if (faceName=="DarkMatter" & treat.dark.matter.as.face) {
     faceName <- ".fpwf"
@@ -1652,8 +1672,6 @@ setMethod("PlotFaces","TissueDrawing",.PlotFaces.TissueDrawing)
     }
   }
 
-  # ok, just try and find some corner guaranteed to be inside
-
   ear.triangle <- .find.triangle.within.face(drawing,faceName)
   earCentroid <- .polygon.centroid(ear.triangle)
   if (!	.is.point.within.face(drawing,faceName,earCentroid )) {
@@ -1661,9 +1679,8 @@ setMethod("PlotFaces","TissueDrawing",.PlotFaces.TissueDrawing)
   }
   return(earCentroid)
 }
-
+#'@export
 .find.triangle.within.face <- function(drawing,faceName) {
-  # poor mans triangulation... subtracting ear method cf wikipedia polygon triangulation
   xy <- .face.toxy(drawing,faceName)
   A <- .face.area(drawing,faceName)
   if (A==0) { # collinear
@@ -1707,7 +1724,7 @@ setMethod("PlotFaces","TissueDrawing",.PlotFaces.TissueDrawing)
   return(xy[ (fix-1):(fix+1),])
 }
 
-
+#'@export
 internalPointsofFaces <- function(drawing) {
   fNames <-setdiff(.faceNames(drawing),"DarkMatter")
   res <- lapply(fNames ,function(x).find.point.within.face(drawing=drawing,x))
@@ -1718,13 +1735,13 @@ internalPointsofFaces <- function(drawing) {
   res
 }
 
-
+#'@export
 .edge.in.Drawing <- function(drawing,edge.name) {
   unsignedEdgeName <- sub("^-","",edge.name)
   unsignedEdgeName %in% names(drawing@edgeList)
 }
 
-
+#'@export
 injectPoint <- function(drawing,edgeName,newPoint) {
   #print(edgeName);
 
@@ -1755,8 +1772,6 @@ injectPoint <- function(drawing,edgeName,newPoint) {
   if (length(splitName>= 3)) { setName <- splitName[3] } else {setName <- "?"}
 
   edgeNames <- c(paste(thisEdge@from,pointName,setName ,sep="|"),paste(pointName,thisEdge@to,setName ,sep="|"))
-  # remove the old one
-  #cat(sprintf("Replacing edge %s by %s and %s\n",edgeName,edgeNames[1],edgeNames[2]))
   drawing@edgeList[[edgeName]] <- NULL
   drawing@edgeList[[edgeNames[1]]] <- new12[[1]]
   drawing@edgeList[[edgeNames[2]]] <- new12[[2]]
@@ -1777,7 +1792,7 @@ injectPoint <- function(drawing,edgeName,newPoint) {
   drawing
 }
 
-
+#'@export
 pnpoly <- function(xp,yp,x,y) {
   npol <- length(xp); stopifnot(npol==length(yp))
   c= 0
@@ -1794,7 +1809,7 @@ pnpoly <- function(xp,yp,x,y) {
 }
 
 
-
+#'@export
 pnpolytest <- function() {
   pnpoly( xp=c(-1,1,1,-1),yp=c(-1,-1,1,1),x=0,y=0)
   pnpoly( xp=c(-1,1,1,1,-1),yp=c(-1,-1,0,1,1),x=0,y=0)
@@ -1805,7 +1820,7 @@ pnpolytest <- function() {
   pnpoly( xp=c(-3,-2,-3),yp=c(2,1,0),x=-4.5,y=0)
 }
 
-
+#'@export
 .is.point.within.face <- function(drawing,faceName,point.xy,type="face") {
   .face.xy <-  .face.toxy(drawing,faceName,type=type)
   inFace <- pnpoly(.face.xy[,1],.face.xy[,2],point.xy[,1],point.xy[,2])
@@ -1814,14 +1829,14 @@ pnpolytest <- function() {
   }
   return(inFace)
 }
-
+#'@export
 .is.face.within.set <- function(drawing,faceName,setName) {
   aPoint <- .find.point.within.face(drawing,faceName)
   .is.point.within.face(drawing,faceName=setName,point.xy=aPoint,type="set")
 
 }
 
-
+#'@export
 .points.of.face <- function(drawing,faceName,from) {
   # these are returned in sequence, starting from (the first) FROM if specified
   thisFaceEdges<- .face.to.faceEdges(drawing,faceName)
@@ -1835,7 +1850,7 @@ pnpolytest <- function() {
   }
   thisFacePoints
 }
-
+#'@export
 .find.face.containing.edge <- function(drawing,edgeList) {
   # normally faces _dont_ contain edges but when we are injecting a new one
   # we want to find which face it is crossing
@@ -1861,7 +1876,7 @@ pnpolytest <- function() {
   }
   inFaceName
 }
-
+#'@export
 injectEdge <- function(drawing,newEdgeList,inFaceName,set2Name,addToList=TRUE) {
   if(addToList) {	drawing@edgeList <- c(drawing@edgeList,newEdgeList) }
 
@@ -1979,7 +1994,7 @@ injectEdge <- function(drawing,newEdgeList,inFaceName,set2Name,addToList=TRUE) {
 }
 
 
-
+#'@export
 newTissueFromCircle <- function(centre.xy,radius,Set=1,nodes=1) {
   nodeangles <-   2 * pi -  ( 0:(nodes-1) * 2 * pi / (nodes))
   p1.xy <- radius * cbind(cos(nodeangles),sin(nodeangles))
@@ -2004,7 +2019,7 @@ newTissueFromCircle <- function(centre.xy,radius,Set=1,nodes=1) {
   }
   VD
 }
-
+#'@export
 newTissueFromEllipse <- function(f1,phi,e,a,Set,dx=0.05) {
   arclength <- (4*pi)
   nintervals <- arclength/dx
@@ -2021,7 +2036,7 @@ newTissueFromEllipse <- function(f1,phi,e,a,Set,dx=0.05) {
   newTissueFromPolygon(points.xy=points.xy,Set=Set)
 }
 
-
+#'@export
 newTissueFromPolygon <- function(points.xy,Set=1) {
   points.xy <- 	.removeDuplicates (points.xy)
   if (nrow(points.xy)<3) {stop("Not enough distince points for a polygon")}
@@ -2051,7 +2066,7 @@ newTissueFromPolygon <- function(points.xy,Set=1) {
   VD
 }
 
-
+#'@export
 injectPoints <- function(drawing,edgeName,newPoints) {
   if (nrow(newPoints)<1) { return(drawing) }
   newPoint <- newPoints[1,,drop=FALSE]
@@ -2079,7 +2094,7 @@ injectPoints <- function(drawing,edgeName,newPoints) {
 
 }
 
-
+#'@export
 addSetToDrawing <- function(drawing1,drawing2,set2Name,remove.points=FALSE) {
 
 
@@ -2141,7 +2156,7 @@ addSetToDrawing <- function(drawing1,drawing2,set2Name,remove.points=FALSE) {
 
 }
 
-
+#'@export
 .addSetWithExistingEdges<- function(drawing1,drawing2,tempface2Name) {
   # the new Set is solely comprised of existing edges
   # so there are no new faces
@@ -2158,7 +2173,7 @@ addSetToDrawing <- function(drawing1,drawing2,set2Name,remove.points=FALSE) {
   }
   drawing1
 }
-
+#'@export
 .addNonintersectingFace <- function(drawing1,drawing2,tempface2Name) {
   # drawing2 contains a single face
   #must be inside one of the faces or outside them all
@@ -2213,7 +2228,7 @@ addSetToDrawing <- function(drawing1,drawing2,set2Name,remove.points=FALSE) {
   new1 <- updateSignature(new1,face2Name,"1")
   new1
 }
-
+#'@export
 .find.point.in.diagram <- function(drawing,aPoint) {
   xy <- do.call(rbind,drawing@nodeList)
   dist <- (xy[,1]-aPoint[1])^2 + (xy[,2]-aPoint[2])^2
@@ -2223,7 +2238,7 @@ addSetToDrawing <- function(drawing1,drawing2,set2Name,remove.points=FALSE) {
   pointName <- rownames(xy)[isEqual]
   return(pointName)
 }
-
+#'@export
 .create.edge.joining.faces <- function(drawing,outerFaceName,innerFaceName) {
   # if outerFaceName is DarkMatter, then we really want to connect any
   # one of the other faces to innerFaceName, and the idea is to draw a line joining the centres of the two faces
@@ -2294,7 +2309,7 @@ addSetToDrawing <- function(drawing1,drawing2,set2Name,remove.points=FALSE) {
   return(list(edgeName=edgeName,drawing=drawing,ok=TRUE))
 
 }
-
+#'@export
 .probe.chord.intersections <- function(drawing,faceName,chord.from.xy,chord.to.xy)  {
   # given two points, chord.from.xy outside the face, and a second point chord.to.xy,
   # draw a line between the two, and see where the line intersects the face.
@@ -2332,7 +2347,7 @@ addSetToDrawing <- function(drawing1,drawing2,set2Name,remove.points=FALSE) {
 }
 
 
-
+#'@export
 .addIntersectingFace <- function(new1,new2,tempface2Name,face2IntersectionPoints) {
   # for each intersection point there is a (set of) edges of face2 to the next intersection
   # point that we need to add as a (multiple) edge
@@ -2372,7 +2387,7 @@ addSetToDrawing <- function(drawing1,drawing2,set2Name,remove.points=FALSE) {
   }
   new1
 }
-
+#'@export
 .SplitFaceAtintersections <- function(new2,tempface2Name,face2IntersectionPoints) {
   face2Points <- .points.of.face(drawing=new2,tempface2Name)
   ixpoints <- sapply(face2Points,function(x){x%in%face2IntersectionPoints})
@@ -2395,9 +2410,7 @@ addSetToDrawing <- function(drawing1,drawing2,set2Name,remove.points=FALSE) {
   faceEdgeList
 }
 
-
-
-
+#'@export
 .internal.edge.drawing.intersection <- function(drawing,edge) {
   for (edgeName in names(drawing@edgeList)) {
     found <- .findIntersection(edge1=drawing@edgeList[[edgeName]],edge2=edge)
@@ -2414,7 +2427,7 @@ addSetToDrawing <- function(drawing1,drawing2,set2Name,remove.points=FALSE) {
   }
   return(FALSE)
 }
-
+#'@export
 .find.point.in.nodelist <- function(drawing,point.xy) {
   existing.xy <- do.call(rbind,drawing@nodeList)
   dist <- existing.xy;
@@ -2424,15 +2437,15 @@ addSetToDrawing <- function(drawing1,drawing2,set2Name,remove.points=FALSE) {
   if (length(iszero)==0) { return(NA) }
   return(names(drawing@nodeList)[iszero])
 }
-
+#'@export
 .find.duplicate.point <- function(drawing1,drawing2,pointName) {
   .find.point.in.nodelist(drawing1,drawing2@nodeList[[pointName]])
 }
-
+#'@export
 .node.number.unused <- function(drawing) {
   max(as.numeric(gsub("[^0-9]","",c(names(drawing@nodeList)))))+1
 }
-
+#'@export
 .add.intersection.points <- function(drawing1,drawing2) {
   new1 <- drawing1; new2 <- drawing2;
   intersectionPoints <- character(0);
@@ -2493,8 +2506,8 @@ addSetToDrawing <- function(drawing1,drawing2,set2Name,remove.points=FALSE) {
   }
   res
 }
-#debug(.add.intersection.points)
 
+#'@export
 .node.distance <- function(xy1,xy2) {
   distmat <- matrix(NA,nrow=nrow(xy1),ncol=nrow(xy2))
   for (i in seq_len(nrow(xy1))) {
@@ -2504,6 +2517,7 @@ addSetToDrawing <- function(drawing1,drawing2,set2Name,remove.points=FALSE) {
   }
   distmat
 }
+#'@export
 .nodes.identical <- function(xy1,xy2) {
   stopifnot(nrow(xy2)==1)
   distmat <- .node.distance(xy1,xy2)
@@ -2513,7 +2527,7 @@ addSetToDrawing <- function(drawing1,drawing2,set2Name,remove.points=FALSE) {
   return(min(wix))
 }
 
-
+#'@export
 .check.clashes <- function(drawing1,drawing2) {
   if (any(names(drawing2@setList) %in% names(drawing1@setList))) {
     stop("Clashing set names")
@@ -2544,7 +2558,7 @@ addSetToDrawing <- function(drawing1,drawing2,set2Name,remove.points=FALSE) {
   }
   new2
 }
-
+#'@export
 rename.node <- function(drawing,oldName,newName) {
   names(drawing@nodeList)[names(drawing@nodeList)==oldName] <- newName
   for (ix in seq_len(length(drawing@edgeList))) {
@@ -2557,7 +2571,7 @@ rename.node <- function(drawing,oldName,newName) {
   }
   drawing
 }
-
+#'@export
 .check.duplicate.edges <- function(drawing1,drawing2) {
   # first we check the forward edges....
 
@@ -2615,7 +2629,7 @@ rename.node <- function(drawing,oldName,newName) {
 
   list(new1=drawing1,new2=drawing2)
 }
-
+#'@export
 .rename.edge <- function(drawing,oldEdgeName,newEdgeName) {
   oldEdgeName <- sub("^-","",oldEdgeName)
   revEdgeName <- paste("-",oldEdgeName,sep="")
@@ -2635,7 +2649,7 @@ rename.node <- function(drawing,oldName,newName) {
   })
   drawing
 }
-
+#'@export
 remove.nonintersectionpoints <- function(drawing) {
   # a non intersection point is a named point (usually from when the face was a single edge)
   # at which there are no intersections with any other sets/invisible edges
@@ -2654,7 +2668,7 @@ remove.nonintersectionpoints <- function(drawing) {
   }
   drawing
 }
-
+#'@export
 getEdge <- function(drawing,edgeName) {
   edgeUnsigned <- sub("^-","",edgeName)
   edge <- drawing@edgeList[[edgeUnsigned]]
@@ -2663,7 +2677,7 @@ getEdge <- function(drawing,edgeName) {
   }
   edge
 }
-
+#'@export
 joinEdgesInDrawing <- function(drawing,inedgeName ,outedgeName) {
   inrev <- substr(inedgeName,1,1)=="-"
   outrev <- substr(outedgeName,1,1)=="-"
@@ -2716,7 +2730,7 @@ joinEdgesInDrawing <- function(drawing,inedgeName ,outedgeName) {
   drawing@nodeList[[inedge@to]] <- NULL
   drawing
 }
-
+#'@export
 .merge.faces.invisibly.split <- function(diagram) {
   doneamerge<- TRUE
   while (doneamerge) {
@@ -2726,7 +2740,7 @@ joinEdgesInDrawing <- function(drawing,inedgeName ,outedgeName) {
   }
   diagram
 }
-
+#'@export
 .try.merge.faces.invisibly.split <- function(diagram) {
   # first we identify multople faces with the same signature
   fsigs <- data.frame(cbind(Name=unlist(.faceNames(diagram)),Signature=unlist(.faceSignatures(diagram))),stringsAsFactors=FALSE);
@@ -2812,7 +2826,7 @@ setMethod("VisibleRange","TissueDrawing",function(object){
   dxxy <- do.call("rbind",lapply(names(object@setList),.face.toxy,type="set",drawing=object))
   apply(dxxy,2,range)
 })
-
+#'@export
 .default.SetLabelPositions <- function(object){
   yscale <- diff(VisibleRange(object)[,2]); smidge <- 0.01*yscale
   sxxy <- lapply(names(object@setList),.face.toxy,type="set",drawing=object)
@@ -2823,14 +2837,15 @@ setMethod("VisibleRange","TissueDrawing",function(object){
   VLabels$Label <- setNames
   VLabels
 }
-
+#'@export
 setMethod("VennSetSetLabels","VennDrawing",function(object,SetLabels) {object@SetLabels <- SetLabels; object})
+#'@export
 setMethod("VennGetSetLabels","VennDrawing",function(object) {object@SetLabels})
+#'@export
 setMethod("VennSetFaceLabels","VennDrawing",function(object,FaceLabels) {object@FaceLabels <- FaceLabels; object})
+#'@export
 setMethod("VennGetFaceLabels","VennDrawing",function(object) {object@FaceLabels})
-
-
-
+#'@export
 setMethod("PlotUniverse","VennDrawing", function(object,gp) {
   if(missing(gp)) { gp <- NULL }
   uv <- VennGetUniverseRange(object)
@@ -2838,7 +2853,7 @@ setMethod("PlotUniverse","VennDrawing", function(object,gp) {
             width=diff(uv[,1]),height=diff(uv[,2]),default.units="native",gp=gp)
 }
 )
-
+#'@export
 .square.universe <- function(object,doWeights=FALSE,smudge=0.05) {
   if (FALSE & doWeights) { # never attempt to weight the Dark Matter for now
     # minimal square box
@@ -2862,20 +2877,19 @@ setMethod("PlotUniverse","VennDrawing", function(object,gp) {
   object@universe <- universe
   object
 }
-
-
+#'@export
 CreateViewport <- function(object) {
   xData <- VennGetUniverseRange(object)[,1]
   yData <- VennGetUniverseRange(object)[,2]
   makevp.eqsc(xData,yData)
 }
-
+#'@export
 UpViewports <- function() {
   upViewport()
   upViewport()
   upViewport()
 }
-
+#'@export
 VennThemes<- function(drawing,colourAlgorithm,increasingLineWidth) {
   gpList <- list()
   if (is.null(gpList[["Face"]])) {
@@ -2892,7 +2906,7 @@ VennThemes<- function(drawing,colourAlgorithm,increasingLineWidth) {
   }
   gpList
 }
-
+#'@export
 FaceColours <- function(drawing,faceNames,colourAlgorithm) {
   if(missing(faceNames)) {
     faceNames <- .faceNames(drawing)
@@ -2936,8 +2950,7 @@ FaceColours <- function(drawing,faceNames,colourAlgorithm) {
   gp
 }
 
-
-
+#'@export
 FaceTextColours <- function(drawing,faceNames,colourAlgorithm) {
   gp <- FaceColours(drawing=drawing,faceNames=faceNames,colourAlgorithm=colourAlgorithm)
   if (!missing(colourAlgorithm)) {
@@ -2969,8 +2982,7 @@ SetTextColours <- function(drawing) {
   gp
 }
 
-
-
+#'@export
 SetColours <- function(drawing,colourAlgorithm,increasingLineWidth) {
   if (missing(colourAlgorithm)) { colourAlgorithm <- "sequential"}
   if (missing(increasingLineWidth)) { increasingLineWidth <- FALSE}
@@ -2994,7 +3006,7 @@ SetColours <- function(drawing,colourAlgorithm,increasingLineWidth) {
   gpList
 }
 
-
+#'@export
 PlotVennGeometry <- function(C3,gpList,show=list(FaceText="weight")) {
   show.default <- list(Universe=TRUE,Sets=TRUE,SetLabels=TRUE,
                        DarkMatter=FALSE,
@@ -3045,9 +3057,9 @@ PlotVennGeometry <- function(C3,gpList,show=list(FaceText="weight")) {
 
   UpViewports()
 }
-
+#'@export
 setMethod("plot",signature(x="VennDrawing",y="missing"),function(x,y,...)PlotVennGeometry(C3=x,...))
-
+#'@export
 PlotIntersectionText <- function(object,gp,element.plot="weight",show.dark.matter=TRUE) {
   if (missing(gp)) gp <- FaceTextColours(object)
   V <- as(object,"Venn")
@@ -3099,7 +3111,7 @@ PlotIntersectionText <- function(object,gp,element.plot="weight",show.dark.matte
               vjust=vj[ij],label=VI$Annotation[ij],default.units="native")
   }
 }
-
+#'@export
 .default.FaceLabelPositions <- function(object){
   dm <-  dark.matter.signature(object)
   ilabels <- data.frame(internalPointsofFaces(as(object,"TissueDrawing")))
@@ -3116,7 +3128,7 @@ PlotIntersectionText <- function(object,gp,element.plot="weight",show.dark.matte
   df[df$Signature==dm,c("x","y")] <- VisibleRange(object)[2,]
   df
 }
-
+#'@export
 setMethod("Areas","VennDrawing",function(object) {
   areas <- faceAreas(as(object,"TissueDrawing"))
   names(areas)[names(areas)=="DarkMatter"] <- dark.matter.signature(object)
@@ -3124,8 +3136,7 @@ setMethod("Areas","VennDrawing",function(object) {
   areas
 })
 
-
-
+#'@export
 PlotSetLabels <- function(object,gp) {
   VLabels <- VennGetSetLabels(object)
   if(missing(gp)) gp <- SetColours(object)
@@ -3141,14 +3152,14 @@ PlotSetLabels <- function(object,gp) {
   }
 }
 
-
+#'@export
 makevp.eqsc <- function(xrange,yrange) {
   # cf Fig 7.4 of Murrell R Graphics
   pushViewport(plotViewport(name="Vennmar",c(1,1,1,1)))
   pushViewport(viewport(name="Vennlay",layout=grid.layout(1,1,widths=diff(xrange),heights=diff(yrange),respect=TRUE)))
   pushViewport(viewport(name="Vennvp",layout.pos.row=1,layout.pos.col=1,xscale=xrange,yscale=yrange))
 }
-
+#'@export
 PlotDarkMatter <- function(VD) {
   ur <- VennGetUniverseRange(VD)
   grey <- brewer.pal(8,"Greys")[2]
