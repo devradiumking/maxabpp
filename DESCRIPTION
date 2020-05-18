@@ -1,7 +1,7 @@
 Package: maxabpp
 Type: Package
 Title: Visualization of MaxQuant output for activity-based protein profiling experiments (Title Case)
-Version: 1.3
+Version: 2.0
 Author: Lei Wang
 Maintainer: Lei Wang <devradiumking@outlook.com>
 Description: This package performs pairwise label-free quantitation of chemical probe-modified peptides from the MaxQuant database search output.    
