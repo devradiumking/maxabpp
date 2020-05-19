@@ -534,8 +534,9 @@ compute.E4 <- function(V,doWeights=FALSE,s=.25,dx=0.2) {
   if (NumberOfSets(V) != 4) { stop("fournotfour")}
   env <- new.env()
   loaded <- data(ellipses,envir=env)
-  stopifnot("ellipses" %in% loaded)
-  TM <- ellipses
+  if (!("ellipses" %in% loaded))
+  {ellipses <- make.E4}
+    TM <- ellipses
   VD <- new("VennDrawing",TM,V)
   SetLabels <- .default.SetLabelPositions(VD)
   VD <- VennSetSetLabels(VD,SetLabels)
