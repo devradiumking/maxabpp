@@ -1484,9 +1484,9 @@ setMethod("PlotNodes","TissueDrawing",function(drawing,gp){
   faceSign <- substring(faceEdgeNames,1,1)=="-"
   unsignedEdgeNames <- sub("^-","",faceEdgeNames)
   notinedgeList <- unsignedEdgeNames [! unsignedEdgeNames %in% names(drawing@edgeList)]
-  if (length(notinedgeList)>0) {
-    stop(sprintf("Face %s has unknown edges %s",faceName,paste(notinedgeList, collapse=" ")))
-  }
+  #if (length(notinedgeList)>0) {
+  #  stop(sprintf("Face %s has unknown edges %s",faceName,paste(notinedgeList, collapse=" ")))
+  #}
   faceEdges <- drawing@edgeList[unsignedEdgeNames ]
   names(faceEdges) <- faceEdgeNames
   faceEdges[faceSign] <- lapply(faceEdges[faceSign],.reverseEdge)
