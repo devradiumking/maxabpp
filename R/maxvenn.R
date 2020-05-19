@@ -66,7 +66,6 @@ VennFromSets_group <- function(setList) {
     IntersectionSets[[sig]] <- union(IntersectionSets[[sig]],element)
   }
   Weights <- sapply(IntersectionSets,length)
-
   Vres <- Max_Venn(SetNames=SetNames,Weight=Weights)
   Vres@IntersectionSets <- IntersectionSets
   Vres
@@ -81,64 +80,46 @@ VennFromSets_individual <- function(setList) {
   IntersectionSets <- sapply(1:length(VIsig),function(x)NULL)
   names(IntersectionSets) <- VIsig
   #Comparing sets from here
+  #Internal function comparing overlaps
+  overlap <- function(one_protein_group, sets_of_protein_groups) {
+    #Convert a string of grouped proteins into a vector of individual protein components for each protein from the protein group selected for comparison
+    proteins <- str_split(one_protein_group,"\\;")[[1]]
+    nsets <- length(sets_of_protein_groups)
+    c <- vector(mode = "list", length = nsets)
+    names(c) <- names(sets_of_protein_groups)
+    for (n in 1:nsets) {
+      c[[n]] <- 0
+      #Convert a string of grouped proteins into a list of vectors of individual protein components for each protein group from each set to be compared against
+      groups_from_sets <- str_split(sets_of_protein_groups[[n]],"\\;")
+      len_groups <- length(groups_from_sets)
+      test <- length(unlist(foreach(i = 1:len_groups) %do% {intersect(groups_from_sets[[i]],proteins)}))
+      condition <- test > 0
+      if (condition) {c[[n]] <- 1}
+    }
+    return(c)
+  }
+  #Internal function comparing overlaps to remove data inflation
+  overlap2 <- function(one_protein_group, one_set_of_protein_groups) {
+    proteins <- str_split(one_protein_group,"\\;")[[1]]
+    proteins_from_set <- unlist(str_split(one_set_of_protein_groups,"\\;"))
+    test <- length(intersect(proteins_from_set,proteins))
+    condition <- test > 0
+    if (condition) {return(TRUE)} else {return(FALSE)}
+  }
   universe <- NULL
   for (iset in setList) {
     universe <- union(universe,iset)
-    }
-  for (element in universe) {
-    #Match each element in combined sets universe to selected element: TRUE = 1, FALSE = 0
-    #overlap <- function(one_protein_group, sets_of_protein_groups)
-    #{
-    #  proteins <- str_split(one_protein_group,"\\;")[[1]]
-    #  nsets <- length(sets_of_protein_groups)
-    #  c <- vector(mode = "list", length = nsets)
-    #  names(c) <- names(setList)
-    #  for (n in 1:nsets)
-    #  {
-    #    c[[n]] <- 0
-    #    for (each_protein in proteins)
-    #    {
-    #      #Separate proteins in each group of each set of protein groups as well
-    #      c[[n]] <- sum(c[[n]], as.numeric(str_detect(sets_of_protein_groups[[n]],each_protein)))
-    #      if (c[[n]] > 0) {
-    #        c[[n]]  <- 1
-    #      } else {
-    #        c[[n]]  <- 0
-    #      }
-    #    }
-    #  }
-    #  return(c)
-    #}
-    #one_protein_group <- c("a;b")
-    #sets_of_protein_groups <- list("set1" = c("a;b","c","d"), "set2" = c("a","c","d"), "set3" = c("c", "d"))
-    overlap <- function(one_protein_group, sets_of_protein_groups)
-    {
-      #Convert a string of grouped proteins into a vector of individual protein components for each protein from the protein group selected for comparison
-      proteins <- str_split(one_protein_group,"\\;")[[1]]
-      nsets <- length(sets_of_protein_groups)
-      c <- vector(mode = "list", length = nsets)
-      names(c) <- names(sets_of_protein_groups)
-      foreach(n = 1:nsets, .packages = "maxabpp") %dopar%
-      {
-        #Convert a string of grouped proteins into a vector of individual protein components for each protein group from each set to be compared against
-        foreach(j = 1:length(sets_of_protein_groups[[n]]), .packages = "maxabpp") %dopar%
-        {
-          group_from_sets <- str_split(sets_of_protein_groups[[n]],"\\;")[[j]]
-          c[[n]]  <- 0
-          #Conditional statement to test if there is common protein component(s)
-          if (length(intersect(proteins, group_from_sets)) > 0) {
-            c[[n]]  <- 1
-          }
-        }
-      }
-    return(c)
-    }
-    sig <- unlist(overlap(element,setList))
+  }
+  len_universe <- length(universe)
+  foreach(element = 1:len_universe) %do% {
+    sig <- unlist(overlap(universe[element],setList))
     sig <- paste(sig,collapse="")
-    IntersectionSets[[sig]] <- union(IntersectionSets[[sig]],element)
+    test2 <- overlap2(universe[element], IntersectionSets[[sig]])
+    if (!test2) {
+      IntersectionSets[[sig]] <- union(IntersectionSets[[sig]],universe[element])
+    }
   }
   Weights <- sapply(IntersectionSets,length)
-
   Vres <- Max_Venn(SetNames=SetNames,Weight=Weights)
   Vres@IntersectionSets <- IntersectionSets
   Vres
@@ -152,7 +133,7 @@ setMethod("show","Venn",function(object){
 
 #'@export
 NumberOfSets <- function(object)
-  {ncol(object@IndicatorWeight)-1}
+{ncol(object@IndicatorWeight)-1}
 #'@export
 Indicator <- function(object){
   object <- as(object,"Venn")
@@ -239,8 +220,8 @@ setMethod("[","Venn", function(x,i,j,...,drop) {
 }
 #'@export
 plot_Max_Venn <- function(V,doWeights=TRUE,add=FALSE,
-                     show=list(FaceText="weight",Faces=TRUE),
-                     gpList){
+                          show=list(FaceText="weight",Faces=TRUE),
+                          gpList){
   nSets <- NumberOfSets(V)
   if (nSets == 2) {
     venn_object <- compute.C2(V,doWeights)
@@ -251,21 +232,12 @@ plot_Max_Venn <- function(V,doWeights=TRUE,add=FALSE,
   } else {
     stop("Not enough or too many sets")
   }
-  #C3 <- compute.Max_Venn(V,doWeights=doWeights,doEuler=doEuler,type=type)
+
   if (!add) {
     grid.newpage()
   }
   PlotVennGeometry(venn_object,gpList=gpList,show=show)
 }
-
-#setGeneric("plot")
-#setMethod("plot", signature(x="Venn", y="missing"),function(x,y,...)plotMax_Venn(V=x,...))
-
-#plot.Venn <- plotVenn
-#setMethod("plot",signature(x="Venn",y="missing"),function(x,y,...)plotMax_Venn(V=x,...))
-
-
-
 
 #Venn module
 #######################################################################
