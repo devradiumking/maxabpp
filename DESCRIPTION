@@ -1,11 +1,11 @@
 Package: maxabpp
 Type: Package
-Title: Visualization of MaxQuant output for activity-based protein profiling experiments (Title Case)
+Title: Visualization of MaxQuant output for activity-based protein profiling experiments 
 Version: 2.2
 Author: Lei Wang
 Maintainer: Lei Wang <devradiumking@outlook.com>
-Description: This package performs pairwise label-free quantitation of chemical probe-modified peptides from the MaxQuant database search output.    
-    It generates datasets containing p-values and fold change information and volcano plots.(maybe more than one line)
+Description: This package offers both individualized comparison of protein groups (Venn Diagram) and pairwise label-free quantitation of chemical probe-modified peptides from the MaxQuant database search output.    
+    It generates datasets containing p-values and fold change information and volcano plots.
 License: Apache 2.0
 Encoding: UTF-8
 LazyData: true
