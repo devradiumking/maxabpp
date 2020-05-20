@@ -12,9 +12,9 @@ Max_Venn <- function(Sets,Weight,SetNames,numberOfSets,IndividualAnalysis) {
       names(Sets) <- SetNames
     }
     if (IndividualAnalysis == FALSE) {
-      return(VennFromSets_group(Sets))
+      return(VennFromSets_group(clean_list(Sets)))
     } else {
-      return(VennFromSets_individual(Sets))
+      return(VennFromSets_individual(clean_list(Sets)))
     }
   }
   if(missing(numberOfSets)) {
@@ -47,6 +47,17 @@ Max_Venn <- function(Sets,Weight,SetNames,numberOfSets,IndividualAnalysis) {
   new("Venn",IndicatorWeight =IndicatorWeight )
 }
 
+#Function that extracts intersection of multiple vectors
+#' @export
+ intersection <- function(x, y, ...){
+      if (missing(...)) intersect(x, y)
+  else intersect(x, intersection(y, ...))
+ }
+#' @export
+ clean_list <- function (L) {
+   L[] <- lapply(L, function(x) x[!x %in% ""])
+   return (L)
+ }
 #Function that calculates overlaps
 #'@export
 VennFromSets_group <- function(setList) {
@@ -77,6 +88,7 @@ VennFromSets_individual <- function(setList) {
   if (is.null(SetNames)) { SetNames <- seq_along(setList) }
   VN <- Max_Venn(SetNames=SetNames)
   VIsig <- VennSignature(VN)
+ # VIsig <- c("000", "100" ,"010" ,"110", "001", "101", "011" ,"111")
   IntersectionSets <- sapply(1:length(VIsig),function(x)NULL)
   names(IntersectionSets) <- VIsig
   #Comparing sets from here
@@ -85,39 +97,173 @@ VennFromSets_individual <- function(setList) {
     #Convert a string of grouped proteins into a vector of individual protein components for each protein from the protein group selected for comparison
     proteins <- str_split(one_protein_group,"\\;")[[1]]
     nsets <- length(sets_of_protein_groups)
-    c <- vector(mode = "list", length = nsets)
-    names(c) <- names(sets_of_protein_groups)
+    indices <- vector(mode = "list", length = nsets)
+    names(indices) <- names(sets_of_protein_groups)
+    if_fullmatch <- FALSE
+    #Intersect all sets!
     for (n in 1:nsets) {
-      c[[n]] <- 0
-      #Convert a string of grouped proteins into a list of vectors of individual protein components for each protein group from each set to be compared against
-      groups_from_sets <- str_split(sets_of_protein_groups[[n]],"\\;")
-      len_groups <- length(groups_from_sets)
-      test <- length(unlist(foreach(i = 1:len_groups) %do% {intersect(groups_from_sets[[i]],proteins)}))
-      condition <- test > 0
-      if (condition) {c[[n]] <- 1}
+      the_set <- sets_of_protein_groups[[n]]
+      match_ID <- match(one_protein_group, the_set)
+      fullmatch <- !is.na(match_ID)
+      if (fullmatch) {
+        indices[[n]] <- match_ID
+        #Skip current iteration if it's a full match
+        next
+      } else {
+        #Convert a string of grouped proteins into a list of vectors of individual protein components for each protein group from each set to be compared against
+        the_set_split <- str_split(the_set,"\\;")
+        #Compare to each group
+        for (n_grps in 1:length(the_set)) {
+          is_overlap <- (length(intersect(the_set_split[[n_grps]], proteins)) > 0)
+          if (is_overlap) {
+            #Save the index of matching protein group within the set
+            indices[[n]] <- n_grps
+            #Should do the second comparison may need a recursive function
+            break
+          } else {indices[[n]] <- 0}
+        }
+      }
     }
-    return(c)
+    return(indices)
   }
-  #Internal function comparing overlaps to remove data inflation
-  overlap2 <- function(one_protein_group, one_set_of_protein_groups) {
-    proteins <- str_split(one_protein_group,"\\;")[[1]]
-    proteins_from_set <- unlist(str_split(one_set_of_protein_groups,"\\;"))
-    test <- length(intersect(proteins_from_set,proteins))
-    condition <- test > 0
-    if (condition) {return(TRUE)} else {return(FALSE)}
+ # #Internal function comparing overlaps to remove data inflation
+ # overlap2 <- function(one_protein_group, one_set_of_protein_groups) {
+ #   proteins <- str_split(one_protein_group,"\\;")[[1]]
+ #   proteins_from_set <- unlist(str_split(one_set_of_protein_groups,"\\;"))
+ #   test <- length(intersect(proteins_from_set,proteins))
+ #   condition <- test > 0
+ #   if (condition) {return(TRUE)} else {return(FALSE)}
+ # }
+  #Internal function revising Venn field ID for each protein group
+  rev_sig <- function(sig, sets, proteins)
+  {
+    nsets <- length(sets)
+    if (nsets != 0) {
+      switch(sig,
+             "110" = {
+               if (length(intersection(sets[[1]],sets[[2]])) > 0) {
+                 return(sig)
+               } else if (length(intersection(sets[[1]],proteins)) > 0) {
+                 return("100")
+               } else {return("010")}
+             },
+             "101" = {
+               if (length(intersection(sets[[1]],sets[[3]])) > 0) {
+                 return(sig)
+               } else if (length(intersection(sets[[1]],proteins)) > 0) {
+                 return("100")
+               } else {return("001")}
+             },
+             "011" = {
+               if (length(intersection(sets[[2]],sets[[3]])) > 0) {
+                 return(sig)
+               } else if (length(intersection(sets[[2]],proteins)) > 0) {
+                 return("010")
+               } else {return("001")}
+             },
+             "111" = {
+               if (length(intersection(sets[[1]],sets[[2]],sets[[3]])) > 0) {
+                 return(sig)
+               } else {
+                 r_sig <- "110"
+                 rr_sig <- rev_sig(r_sig, sets, proteins)
+                 if (as.integer(rr_sig) == as.integer(r_sig)) {
+                   return(r_sig)
+                 } else {
+                   r_sig <- "101"
+                   rr_sig <- rev_sig(r_sig, sets, proteins)
+                   if (as.integer(rr_sig) == as.integer(r_sig)) {
+                     return(r_sig)
+                   } else {
+                     r_sig <- "011"
+                     rr_sig <- rev_sig(r_sig, sets, proteins)
+                     if (as.integer(rr_sig) == as.integer(r_sig)) {
+                       return(r_sig)
+                     }
+                   }
+                 }
+               }
+             },
+             #default
+             return(sig)
+      )
+      #TBD
+  } else if (nsets == 4) {
+    switch(sig,
+           "1100" = {
+
+           },
+           "1010" = {
+
+           },
+           "0110" = {
+
+           },
+           "1110" = {
+
+           },
+           "1001" = {
+
+           },
+           "0101" = {
+
+           },
+           "1101" = {
+
+           },
+           "0011" = {
+
+           },
+           "1011" = {
+
+           },
+           "0111" = {
+
+           },
+           "1111" = {
+
+           }
+           #default
+    )
+   }
   }
   universe <- NULL
   for (iset in setList) {
     universe <- union(universe,iset)
   }
-  len_universe <- length(universe)
-  foreach(element = 1:len_universe) %do% {
-    sig <- unlist(overlap(universe[element],setList))
-    sig <- paste(sig,collapse="")
-    test2 <- overlap2(universe[element], IntersectionSets[[sig]])
-    if (!test2) {
-      IntersectionSets[[sig]] <- union(IntersectionSets[[sig]],universe[element])
-    }
+  for (element in universe) {
+    #Check if it's a direct full overlap
+    sig <- as.numeric(!is.na(sapply(setList,match,x=element)))
+    sig_check <- ((Reduce("+", sig)) == length(setList))
+   if (sig_check) {
+    #If TRUE, write the group directly to the output
+     sig <- as.numeric(!is.na(sapply(setList,match,x=element)))
+     sig <- paste(sig,collapse="")
+     IntersectionSets[[sig]] <- union(IntersectionSets[[sig]],element)
+   } else {
+     #Call the overlap function that returns the Venn Field ID for each protein group in the universe?
+     indices <- overlap(element,setList)
+     proteins <- str_split(element,"\\;")[[1]]
+     #Compare indexed groups
+     sets <- sapply(1:length(indices),function(x) NULL)
+     names(sets) <- names(indices)
+     for (x in 1:length(indices)){
+       to_sets <- unlist(str_split(setList[[names(indices)[x]]][indices[[x]]],"\\;"))
+       if (!is.null(to_sets)) {
+        sets[[names(indices)[x]]] <- to_sets
+       }
+     }
+     sig <- as.numeric(indices > 0)
+     sig_check <- ((Reduce("+", sig)) == 1)
+     sig <- paste(sig,collapse="")
+     if (sig_check) {
+     IntersectionSets[[sig]] <- union(IntersectionSets[[sig]],element)
+     } else {
+     #Revise Venn field ID
+     sig <- rev_sig(sig, sets, proteins)
+     IntersectionSets[[sig]] <- union(IntersectionSets[[sig]],element)
+     }
+   }
   }
   Weights <- sapply(IntersectionSets,length)
   Vres <- Max_Venn(SetNames=SetNames,Weight=Weights)
