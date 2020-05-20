@@ -138,92 +138,207 @@ VennFromSets_individual <- function(setList) {
   rev_sig <- function(sig, sets, proteins)
   {
     nsets <- length(sets)
-    if (nsets != 0) {
+    if (nsets == 2) {
+      return(sig)
+    } else if (nsets == 3) {
       switch(sig,
              "110" = {
                if (length(intersection(sets[[1]],sets[[2]])) > 0) {
                  return(sig)
                } else if (length(intersection(sets[[1]],proteins)) > 0) {
                  return("100")
-               } else {return("010")}
+               } else if (length(intersection(sets[[2]],proteins))) {return("010")}
              },
              "101" = {
                if (length(intersection(sets[[1]],sets[[3]])) > 0) {
                  return(sig)
                } else if (length(intersection(sets[[1]],proteins)) > 0) {
                  return("100")
-               } else {return("001")}
+               } else if (length(intersection(sets[[3]],proteins))) {return("001")}
              },
              "011" = {
                if (length(intersection(sets[[2]],sets[[3]])) > 0) {
                  return(sig)
                } else if (length(intersection(sets[[2]],proteins)) > 0) {
                  return("010")
-               } else {return("001")}
+               } else if (length(intersection(sets[[3]],proteins))) {return("001")}
              },
              "111" = {
                if (length(intersection(sets[[1]],sets[[2]],sets[[3]])) > 0) {
                  return(sig)
                } else {
-                 r_sig <- "110"
-                 rr_sig <- rev_sig(r_sig, sets, proteins)
-                 if (as.integer(rr_sig) == as.integer(r_sig)) {
-                   return(r_sig)
-                 } else {
-                   r_sig <- "101"
+                 for (r_sig in c("110", "101", "011")) {
                    rr_sig <- rev_sig(r_sig, sets, proteins)
                    if (as.integer(rr_sig) == as.integer(r_sig)) {
                      return(r_sig)
-                   } else {
-                     r_sig <- "011"
-                     rr_sig <- rev_sig(r_sig, sets, proteins)
-                     if (as.integer(rr_sig) == as.integer(r_sig)) {
-                       return(r_sig)
-                     }
+                     break
+                   }
+                 }
+                 for (r_sig in c("110", "101", "011")) {
+                   rr_sig <- rev_sig(r_sig, sets, proteins)
+                   if (as.integer(rr_sig) != 0) {
+                     return(rr_sig)
+                     break
                    }
                  }
                }
              },
              #default
-             return(sig)
+             return("000")
       )
-      #TBD
+
   } else if (nsets == 4) {
     switch(sig,
            "1100" = {
-
+             if (length(intersection(sets[[1]],sets[[2]])) > 0) {
+               return(sig)
+             } else if (length(intersection(sets[[1]],proteins)) > 0) {
+               return("1000")
+             } else if (length(intersection(sets[[2]],proteins))){return("0100")}
            },
            "1010" = {
-
+             if (length(intersection(sets[[1]],sets[[3]])) > 0) {
+               return(sig)
+             } else if (length(intersection(sets[[1]],proteins)) > 0) {
+               return("1000")
+             } else if (length(intersection(sets[[3]],proteins))){return("0010")}
            },
            "0110" = {
-
+             if (length(intersection(sets[[2]],sets[[3]])) > 0) {
+               return(sig)
+             } else if (length(intersection(sets[[2]],proteins)) > 0) {
+               return("0100")
+             } else if (length(intersection(sets[[3]],proteins))){return("0010")}
            },
            "1110" = {
-
+             if (length(intersection(sets[[1]],sets[[2]],sets[[3]])) > 0) {
+               return(sig)
+             } else {
+             for (r_sig in c("1100", "1010", "0110")) {
+               rr_sig <- rev_sig(r_sig, sets, proteins)
+               if (as.integer(rr_sig) == as.integer(r_sig)) {
+                 return(r_sig)
+                 break
+               }
+             }
+             for (r_sig in c("1100", "1010", "0110")) {
+                 rr_sig <- rev_sig(r_sig, sets, proteins)
+                 if (as.integer(rr_sig) != 0) {
+                   return(rr_sig)
+                   break
+                 }
+               }
+             }
            },
            "1001" = {
-
+             if (length(intersection(sets[[1]],sets[[4]])) > 0) {
+               return(sig)
+             } else if (length(intersection(sets[[1]],proteins)) > 0) {
+               return("1000")
+             } else if (length(intersection(sets[[4]],proteins))){return("0001")}
            },
            "0101" = {
-
+             if (length(intersection(sets[[2]],sets[[4]])) > 0) {
+               return(sig)
+             } else if (length(intersection(sets[[1]],proteins)) > 0) {
+               return("0100")
+             } else if (length(intersection(sets[[4]],proteins))){return("0001")}
            },
            "1101" = {
-
+             if (length(intersection(sets[[1]],sets[[2]],sets[[4]])) > 0) {
+               return(sig)
+             } else {
+             for (r_sig in c("1100", "1001", "0101")) {
+               rr_sig <- rev_sig(r_sig, sets, proteins)
+               if (as.integer(rr_sig) == as.integer(r_sig)) {
+                 return(r_sig)
+                 break
+               }}
+             for (r_sig in c("1100", "1001", "0101")) {
+                 rr_sig <- rev_sig(r_sig, sets, proteins)
+                 if (as.integer(rr_sig) != 0) {
+                   return(rr_sig)
+                   break
+                 }
+               }
+             }
            },
            "0011" = {
-
+             if (length(intersection(sets[[3]],sets[[4]])) > 0) {
+               return(sig)
+             } else if (length(intersection(sets[[3]],proteins)) > 0) {
+               return("0010")
+             } else if (length(intersection(sets[[4]],proteins))){return("0001")}
            },
            "1011" = {
-
+             if (length(intersection(sets[[1]],sets[[3]],sets[[4]])) > 0) {
+               return(sig)
+             } else {
+             for (r_sig in c("1010", "1001", "0011")) {
+               rr_sig <- rev_sig(r_sig, sets, proteins)
+               if (as.integer(rr_sig) == as.integer(r_sig)) {
+                 return(r_sig)
+                 break
+               }}
+             for (r_sig in c("1010", "1001", "0011")) {
+                 rr_sig <- rev_sig(r_sig, sets, proteins)
+                 if (as.integer(rr_sig) != 0) {
+                   return(rr_sig)
+                   break
+                 }
+               }
+             }
            },
            "0111" = {
-
+             if (length(intersection(sets[[2]],sets[[3]],sets[[4]])) > 0) {
+               return(sig)
+             } else {
+             for (r_sig in c("0101", "0011", "0110")) {
+               rr_sig <- rev_sig(r_sig, sets, proteins)
+               if (as.integer(rr_sig) == as.integer(r_sig)) {
+                 return(r_sig)
+                 break
+               }}
+             for (r_sig in c("0101", "0011", "0110")) {
+                 rr_sig <- rev_sig(r_sig, sets, proteins)
+                 if (as.integer(rr_sig) != 0) {
+                   return(rr_sig)
+                   break
+                 }
+               }
+             }
            },
            "1111" = {
-
-           }
+             if (length(intersection(sets[[1]],sets[[2]],sets[[3]],sets[[4]])) > 0) {
+               return(sig)
+             } else {
+             for (r_sig in c("1110", "0111", "1011", "1101")) {
+               rr_sig <- rev_sig(r_sig, sets, proteins)
+               if (as.integer(rr_sig) == as.integer(r_sig)) {
+                 return(r_sig)
+                 break
+                }
+             }
+             for (r_sig in c("1110", "0111", "1011", "1101")) {
+                 rr_sig <- rev_sig(r_sig, sets, proteins)
+                 rrr_sig <- rev_sig(rr_sig, sets, proteins)
+                 if (as.integer(rrr_sig) == as.integer(rr_sig)) {
+                   return(rr_sig)
+                   break
+                 }
+             }
+             for (r_sig in c("1110", "0111", "1011", "1101")) {
+                 rr_sig <- rev_sig(r_sig, sets, proteins)
+                 rrr_sig <- rev_sig(rr_sig, sets, proteins)
+                 if (as.integer(rrr_sig) != 0) {
+                   return(rrr_sig)
+                   break
+                 }
+               }
+             }
+           },
            #default
+           return("0000")
     )
    }
   }
