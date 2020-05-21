@@ -1,8 +1,12 @@
 # maxabpp
 R package for augmented visualization of MaxQuant identification and label-free quantitation data in peptide-centric competitive activity-based protein profiling or other untargeted proteomics platforms.
 
-Example Plots
--------------
+visualizing ABPP Data
+---------------------
+![Venn Diagram of Three Protein ID lists](/examples/ThreeSetVennDiagram.svg) ![Target Diagram of Three Protein ID lists](/examples/ThreeSetTargetDiagram.svg)
+
+![Venn Diagram of Four Protein ID lists](/examples/FourSetVennDiagram.svg) ![Volcano Plot](/examples/FourSetTargetDiagram.svg)
+
 ![Volcano Plot](/examples/VolcanoPlot.svg)
 
 Getting Started
