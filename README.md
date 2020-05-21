@@ -1,6 +1,10 @@
 # maxabpp
 R package for augmented visualization of MaxQuant identification and label-free quantitation data in peptide-centric competitive activity-based protein profiling or other untargeted proteomics platforms.
 
+Example Plots
+-------------
+![Volcano Plot](https://github.com/devradiumking/maxabpp/tree/master/examples/VolcanoPlot.svg)
+
 Getting Started
 ---------------
   

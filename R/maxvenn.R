@@ -3170,7 +3170,7 @@ FaceColours <- function(drawing,faceNames,colourAlgorithm) {
   }
   if (colourAlgorithm=="signature") {
     countmax <- max(setcounts)
-    fillcols <- c(DarkMatterColour ,brewer.pal(countmax,'Spectral'))
+    fillcols <- c(DarkMatterColour , brewer.pal(countmax,'Reds'))
     setcolours <-fillcols[1+setcounts]; names(setcolours) <- names(setcounts)
   } else if (colourAlgorithm=="sequential"){
     fillcols <- brewer.pal(12,"Set3")
