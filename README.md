@@ -7,7 +7,8 @@ visualizing ABPP Data
 
 ![Venn Diagram of Four Protein ID lists](/examples/FourSetVennDiagram.svg) ![Volcano Plot](/examples/FourSetTargetDiagram.svg)
 
-![Volcano Plot](/examples/VolcanoPlot.svg)
+<img align="left" width="100" height="100" src="/examples/VolcanoPlot.svg">
+Volcano Plot
 
 Getting Started
 ---------------
