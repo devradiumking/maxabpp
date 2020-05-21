@@ -85,6 +85,6 @@ maxabpp was developed at the [Yao Lab](http://web.uconn.edu/yaogroup/index.html)
 
 If you use this package please cite as:
 
-> Lei Wang and Xudong Yao (2020). maxabpp: R package for augmented visualization of peptide-centric competitive activity-based protein profiling data from MaxQuant label-free quantitation output. 
-> package version 1.1. https://github.com/devradiumking/maxabpp
+> Lei Wang and Xudong Yao (2020). maxabpp: R package for augmented visualization of peptide-centric competitive activity-based protein profiling data from MaxQuant protein identification and label-free quantitation output. 
+> package version 2.3. https://github.com/devradiumking/maxabpp
 

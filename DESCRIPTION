@@ -4,8 +4,8 @@ Title: Visualization of MaxQuant output for activity-based protein profiling exp
 Version: 2.3
 Author: Lei Wang
 Maintainer: Lei Wang <devradiumking@outlook.com>
-Description: This package offers both individualized comparison of protein groups (Venn Diagram) and pairwise label-free quantitation of chemical probe-modified peptides from the MaxQuant database search output.    
-    It generates datasets containing p-values and fold change information and volcano plots.
+Description: This package offers both individualized comparison of protein groups (Venn Diagram and Target Diagram) and pairwise label-free quantitation of chemical probe-modified peptides from the MaxQuant database search output.    
+    It generates datasets containing tiered intersections of protein groups for Target Diagram; p-values and fold change information for volcano plots.
 License: Apache 2.0
 Encoding: UTF-8
 LazyData: true
