@@ -24,7 +24,7 @@ make_tiers <- function(setLists) {
  {
    field_name <- names(IntersectionSets)[n_field]
    field_level <- sum(as.integer(unlist(strsplit(field_name,""))))
-   levels[[field_level]] <- union(levels[[field_level]], V3tags_new@IntersectionSets[[field_name]])
+   levels[[field_level]] <- union(levels[[field_level]], maxVennOutput@IntersectionSets[[field_name]])
  }
  #The smaller the tier number is the higher the level, best tier has highest level
  n_tiers <- length(levels)
