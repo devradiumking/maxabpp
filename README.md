@@ -3,18 +3,23 @@ R package for augmented visualization of MaxQuant identification and label-free 
 
 Visualizing ABPP Data
 ---------------------
+
 <center>
 ![Venn Diagram of Three Protein ID lists](examples/ThreeSetVennDiagram.svg)
 </center>
+
 <center>
 ![Venn Diagram of Four Protein ID lists](examples/FourSetVennDiagram.svg)
 </center>
+
 <center>
 ![Target Diagram of Three Protein ID lists](examples/ThreeSetTargetDiagram.svg)
 </center>
+
 <center>
 ![Target Diagram of Four Protein ID lists](examples/FourSetTargetDiagram.svg)
 </center>
+
 <center>
 ![Volcano Plot](examples/VolcanoPlot.svg)
 </center>
