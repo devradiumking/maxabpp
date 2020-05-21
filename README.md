@@ -3,7 +3,7 @@ R package for augmented visualization of MaxQuant identification and label-free 
 
 Example Plots
 -------------
-![Volcano Plot](https://github.com/devradiumking/maxabpp/tree/master/examples/VolcanoPlot.svg)
+![Volcano Plot](/examples/VolcanoPlot.svg)
 
 Getting Started
 ---------------
