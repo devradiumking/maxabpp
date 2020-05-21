@@ -5,23 +5,23 @@ Visualizing ABPP Data
 ---------------------
 
 <center>
-![Venn Diagram of Three Protein ID lists](examples/ThreeSetVennDiagram.svg)
+![Venn Diagram of Three Protein ID lists](https://github.com/devradiumking/maxabpp/tree/master/examples/ThreeSetVennDiagram.svg)
 </center>
 
 <center>
-![Venn Diagram of Four Protein ID lists](examples/FourSetVennDiagram.svg)
+![Venn Diagram of Four Protein ID lists](https://github.com/devradiumking/maxabpp/tree/master/examples/FourSetVennDiagram.svg)
 </center>
 
 <center>
-![Target Diagram of Three Protein ID lists](examples/ThreeSetTargetDiagram.svg)
+![Target Diagram of Three Protein ID lists](https://github.com/devradiumking/maxabpp/tree/master/examples/ThreeSetTargetDiagram.svg)
 </center>
 
 <center>
-![Target Diagram of Four Protein ID lists](examples/FourSetTargetDiagram.svg)
+![Target Diagram of Four Protein ID lists](https://github.com/devradiumking/maxabpp/tree/master/examples/FourSetTargetDiagram.svg)
 </center>
 
 <center>
-![Volcano Plot](examples/VolcanoPlot.svg)
+![Volcano Plot](https://github.com/devradiumking/maxabpp/tree/master/examples/VolcanoPlot.svg)
 </center>
 
 Getting Started
