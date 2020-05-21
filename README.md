@@ -1,5 +1,5 @@
 # maxabpp
-R package for augmented visualization of MaxQuant label-free quantitation data in peptide-centric competitive activity-based protein profiling platforms.
+R package for augmented visualization of MaxQuant identification and label-free quantitation data in peptide-centric competitive activity-based protein profiling or other untargeted proteomics platforms.
 
 Getting Started
 ---------------
@@ -37,7 +37,12 @@ library(stringdist)
 library(rscripting)
 library(stringr)
 library(ggplot2)
+library(ggforce)
 library(ggrepel)
+library(grid)
+library(RColorBrewer)
+library(plyr)
+
 ```  
 3. Call function pairwise_LFQ() on raw MaxQuant output ("modificationSpecificPeptides.txt" and a customized metadata file "metadata.txt" must be put in the folder set as the working directory) to obtain output1, for example:
 ```{r}
@@ -66,6 +71,12 @@ plot_volcano(output2, "InhibitorHigh _vs_ InhibitorLow _log2fold_change", "Inhib
 multi_volcano_plots(raw = raw, meta = meta, name_probe_mod = c("Mod"),
                     max_each_mod = 1, max_total_mods = 1, quantitation_level = "peptide" , background_check = FALSE,
                     xlim = c(-10, 3), ylim = c(0, 5), label_col_name = "Gene.Names", pCutoff = 0.05, FCcutoff = -2)
+```
+7. New features of v2.3: visualization of identified proteins groups from MaxQuant proteinGroups.txt with Venn Diagram and Target Diagram of tiered intersection. User-renamed proteinGroups.txt files must be put in the designated folder (default folder name is "proteinGroups"). Create one if needed. Call the functions below to make the plots.
+```{r}
+setList <- make_proteinGroups_setList(folderName = "proteinGroups")
+plot_Max_Venn(Max_Venn(setList, IndividualAnalysis = TRUE))
+plot_target(make_tiers(setList))
 ```
 Citation
 --------
