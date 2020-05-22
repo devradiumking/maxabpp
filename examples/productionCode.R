@@ -11,7 +11,7 @@ library(RColorBrewer)
 library(plyr)
 
 setList <- make_proteinGroups_setList()
-plot_Max_Venn(Max_Venn(setList, IndividualAnalysis = FALSE))
+plot_Max_Venn(Max_Venn(setList, IndividualAnalysis = TRUE))
 tiers <- make_tiers(setList)
 plot_target(tiers, density = 500)
 
