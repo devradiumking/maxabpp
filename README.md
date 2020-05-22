@@ -50,16 +50,16 @@ Usage
 ```{r}
 install.packages("tidyverse")
 install.packages("stringdist")
-install_github('btupper/rscripting')
 install.packages("stringr")
 install.packages("ggplot2")
 install.packages("ggrepel")
+install.packages("RColorBrewer")
+install.packages("grid")
 ```  
 2. Load dependent R packages.
 ```{r}
 library(tidyverse)
 library(stringdist)
-library(rscripting)
 library(stringr)
 library(ggplot2)
 library(ggforce)
