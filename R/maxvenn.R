@@ -3162,11 +3162,11 @@ FaceColours <- function(drawing,faceNames,colourAlgorithm) {
     setcount
   }))
   if (missing(colourAlgorithm)) {
-    if ( nSignatures >12) {
+    #if ( nSignatures > 12) {
       colourAlgorithm <- "signature"
-    } else {
-      colourAlgorithm <- "sequential"
-    }
+    # } else {
+    #  colourAlgorithm <- "sequential"
+    #}
   }
   if (colourAlgorithm=="signature") {
     countmax <- max(setcounts)
