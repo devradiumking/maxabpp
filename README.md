@@ -89,13 +89,13 @@ output2 <- append_ec_sites(output1, quantitation_level = "peptide")
 ```
 5. Call function plot_volcano(), on output2 to obtain a volcano plot, for example:
 ```{r}
-plot_volcano(output2, "InhibitorHigh _vs_ InhibitorLow _log2fold_change", "InhibitorHigh _vs_ InhibitorLow _-log10p-value", xlim = c(-8, 3), ylim = c(0, 5), "Gene.Names", 1, -1, "InhibitorName/ProbeName")
+plot_volcano(output2, "InhibitorHigh _vs_ InhibitorLow _log2fold_change", "InhibitorHigh _vs_ InhibitorLow _-log10p-value", xlim = c(-8, 3), ylim = c(0, 5), "Gene Names", 1, -1, "InhibitorName/ProbeName")
 ```
 6. New feature of v1.1, you can plot all volcano plots by calling multi_volcano_plots() functions
 ```{r}
 multi_volcano_plots(raw = raw, meta = meta, name_probe_mod = c("Mod"),
                     max_each_mod = 1, max_total_mods = 1, quantitation_level = "peptide" , background_check = FALSE,
-                    xlim = c(-10, 3), ylim = c(0, 5), label_col_name = "Gene.Names", pCutoff = 0.05, FCcutoff = -2)
+                    xlim = c(-10, 3), ylim = c(0, 5), label_col_name = "Gene Names", pCutoff = 0.05, FCcutoff = -2)
 ```
 7. New features of v2.3: visualization of identified proteins groups from MaxQuant proteinGroups.txt with Venn Diagram and Target Diagram of tiered intersection. User-renamed proteinGroups.txt files must be put in the designated folder (default folder name is "proteinGroups"). Create one if needed. Call the functions below to make the plots.
 ```{r}
