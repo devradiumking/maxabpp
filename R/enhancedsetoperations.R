@@ -77,7 +77,9 @@ elemental_subset <- function (dataset, exam_col, cell_must_contain, delimiter) {
   return(filtered_dataset)
 }
 
-#' process_modificationSpecificPeptides: convert MaxQuant modificationSpecificPeptides.txt file to an intensity table
+
+
+#' proc_mspTable: convert MaxQuant modificationSpecificPeptides.txt file to an intensity table
 #' @param raw                 a dataframe by reading modificationSpecificPeptides.txt
 #' @param metadata            a dataframe that maches the MaxQuant input. Column 1: Intensity (such as Intensity samplename, same as the column names in modificationSpecificPeptides.txt) name Column 2: Replicate group (use the same name for each group of replicates)
 #' @param name_probe_mod      a string vector of chemical probe/modification names, such as c("Mod1", "Mod2"), must match MaxQuant input
@@ -86,10 +88,9 @@ elemental_subset <- function (dataset, exam_col, cell_must_contain, delimiter) {
 #' @param quantitation_level  a string, must be either "peptide" or "protein"
 #' @param background_check    a boolean, FALSE = quantify probe-modified peptides, TRUE = quantify non-probe-modified peptides
 #' @param normalize_to        a string, must be either "sum_all", "mean_all", (normalize to all peptides) "sum_background", or "mean_background" (normalize to background/non-probe-modified peptides).
-#' @return a dataframe table of peptides, proteins and their corresponding -log10(p-value) and log2(FC)
-#' @examples output <- pairwise_LFQ(raw = read.delim("modificationSpecificPeptides.txt", header=TRUE, sep="\t"), metadata = read.delim("metadata.txt", header=TRUE, sep="\t"), name_probe_mod = c("Mod1", "Mod2"), max_each_mod = 1, max_total_mods = 1, quantitation_level = "peptide" , background_check = FALSE, normalize_to = "mean_all")
+#' @return a tibble of extracted and process subset from modificationSpecificPeptides.txt
 #' @export
-process_modificationSpecificPeptides <- function (raw = read_tsv("modificationSpecificPeptides.txt"), metadata = read_tsv("metadata.txt"),
+proc_mspTable <- function (raw = read_tsv("modificationSpecificPeptides.txt"), metadata = read_tsv("metadata.txt"),
                           name_probe_mod, max_each_mod = 1, max_total_mods = 1, quantitation_level = "peptide" , background_check = FALSE, normalize_to = NULL) {
 
   #* Establish a new 'ArgCheck' object
