@@ -9,11 +9,6 @@ library(grid)
 library(RColorBrewer)
 library(plyr)
 
-proteinGroups <- read_proteinGroups()
-setList <- make_proteinGroups_setList()
-plot_Max_Venn(Max_Venn(setList, IndividualAnalysis = FALSE))
-tiers <- make_tiers(setList)
-plot_target(tiers, density = 500)
 
 output1 <- pairwise_LFQ(
   raw = merge2,
@@ -40,6 +35,17 @@ peptide_lvl_table <- proc_mspTable(raw = merge2, metadata = metadata,
                                                  max_each_mod = 1, max_total_mods = 1, quantitation_level = "peptide", background_check = FALSE, normalize_to = NULL)
 
 
+all_peptides <- subset(filter(merge2, is.na(Reverse)) %>% select("Sequence", "Modifications", "Proteins", "Gene Names", "Protein Names", starts_with("Intensity ")))
+#proteinGroups <- read_proteinGroups()
+setList <- make_geneNames_setList()
+setList[["peptide_lvl"]] <- as.list(peptide_lvl_table[["Gene Names"]])
+plot_Max_Venn(Max_Venn(setList, IndividualAnalysis = FALSE))
+tiers <- make_tiers2(setList)
+tiers[["peptide_lvl"]] <- unique(all_peptides[["Gene Names"]])
+plot_Max_Venn(Max_Venn(tiers, IndividualAnalysis = FALSE))
+
+
+plot_target(tiers, density = 500)
 
 
 
