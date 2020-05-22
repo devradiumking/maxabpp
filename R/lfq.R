@@ -10,7 +10,7 @@
 #' @return a dataframe table of peptides, proteins and their corresponding -log10(p-value) and log2(FC)
 #' @examples output <- pairwise_LFQ(raw = read.delim("modificationSpecificPeptides.txt", header=TRUE, sep="\t"), metadata = read.delim("metadata.txt", header=TRUE, sep="\t"), name_probe_mod = c("Mod1", "Mod2"), max_each_mod = 1, max_total_mods = 1, quantitation_level = "peptide" , background_check = FALSE, normalize_to = "mean_all")
 #' @export
-pairwise_LFQ <- function (raw = read.delim("modificationSpecificPeptides.txt", header=TRUE, sep="\t"), metadata = read.delim("metadata.txt", header=TRUE, sep="\t"),
+pairwise_LFQ <- function (raw = read_tsv("modificationSpecificPeptides.txt"), metadata = read_tsv("metadata.txt"),
 name_probe_mod, max_each_mod = 1, max_total_mods = 1, quantitation_level = "peptide" , background_check = FALSE, normalize_to = NULL) {
 
 #* Establish a new 'ArgCheck' object
@@ -42,6 +42,7 @@ ArgumentCheck::finishArgCheck(Check)
 #If one cleaved peptide can map to multiple miscleaved peptides, the "parent sequence" will be a concatenated string of all
 add_parent_sequence <- function (dataset) {
   seq <- dataset$Sequence
+  dataset$parent_sequence <- ""
   for (i in 1:length(seq)) {
     related_seq <- unique(as.character(subset(seq, grepl(seq[i],seq))))
     length_seq <- nchar(related_seq)
@@ -64,10 +65,10 @@ add_parent_sequence <- function (dataset) {
 
 #Internal function 2: replacing column names with metadata replicate groups
 replace_column_names <- function (interim_data, metadata) {
-  num_column_rename <- length(colnames(interim_data %>%  select(starts_with("Intensity."))))
+  num_column_rename <- length(colnames(interim_data %>%  select(starts_with("Intensity "))))
   if (nrow(metadata) == num_column_rename) {
     for (k in 1:num_column_rename) {
-      names(interim_data)[names(interim_data) == metadata[,1][k]] <- metadata[,2][k]
+      names(interim_data)[names(interim_data) == metadata[[1]][k]] <- metadata[[2]][k]
     }
     return(interim_data)
   } else {
@@ -172,21 +173,53 @@ normalize_to_background <- function (data, background) {
   return(data)
 }
 
-#Replace space and dash characters with dots due to the limitation of column renaming in R
-metadata <- replace_val(metadata,'\\s+', '.')
-metadata <- replace_val(metadata,'\\-', '.')
-sample_groups <- unique(metadata[,2])
+#Interanl function 7: Filter dataset to meet mod requirements
+elemental_mod_subset <- function (dataset, name_probe_mod, max_each_mod, max_total_mods) {
+  #Create an tibble with same column names and first row of data from the input dataset
+  names <- names(dataset)
+  filtered_dataset <- tibble() %>% tibble_add_column(dataset[1,])
+  #This step removes first row of data and creates an empty tibble with same column names as the input dataset
+  filtered_dataset <- filtered_dataset[-1,]
+  for (row_num in 1:nrow(dataset)) {
+    cell_must_contain <- str_split(dataset[["Modifications"]], "\\;")[[row_num]]
+    detected_mods <- intersect(cell_must_contain, name_probe_mod)
+    mod_counts <- str_extract(detected_mods, "[1-9]")
+    if (length(mod_counts) == 0) {
+      mod_counts <- 1
+    }
+    if (is.na(mod_counts)) {
+      mod_counts <- as.integer()
+      for (c in 1:length(detected_mods)) {
+        mod_counts[c] <- 1
+      }
+    } else {mod_counts <- as.integer(mod_counts)}
+    condition1 <- as.integer(sum(mod_counts) <=  max_total_mods)
+    condition2 <- prod(as.integer((mod_counts <= max_each_mod)))
+    if (length(detected_mods) > 0 & condition1*condition2 == 1) {
+      filtered_dataset <- rbind(filtered_dataset, dataset[row_num,])
+    }
+  }
+  return(filtered_dataset)
+}
+
+#Obsolete, use readr instead of read.delim (Replace space and dash characters with dots due to the limitation of column renaming in R)
+#metadata <- replace_val(metadata,'\\s+', '.')
+#metadata <- replace_val(metadata,'\\-', '.')
+sample_groups <- as.character(unique(metadata[,2])[[1]])
 #Replace special characters with dots within the probe modification string due to the limitation of column renaming in R
-probe_mods <- gsub("-", ".", gsub(" ", ".", gsub("[()]", ".", name_probe_mod)))
+probe_mods <- name_probe_mod
+#probe_mods <- gsub("-", ".", gsub(" ", ".", gsub("[()]", ".", name_probe_mod)))
+probe_mods <- str_replace_all(name_probe_mod,"\\(","\\\\(")
+probe_mods <- str_replace_all(probe_mods,"\\)","\\\\)")
 ##Estimate background using non-probe-modified peptides
-background_peptides <- subset(filter(raw, !mgrepl(probe_mods, Modifications, op ="|")), Reverse !="+") %>% select(Sequence, Modifications, Proteins, Gene.Names, Protein.Names, starts_with("Intensity."))
-all_peptides <- subset(filter(raw, Reverse !="+") %>% select(Sequence, Modifications, Proteins, Gene.Names, Protein.Names, starts_with("Intensity.")))
-sum_background <- summarise_all(background_peptides %>% select(starts_with("Intensity.")), sum)
-mean_background <- summarise_all(background_peptides %>% select(starts_with("Intensity.")), mean)
-#mad_background <- summarise_all(background_peptides %>% select(starts_with("Intensity.")), mad)
-sum_all <- summarise_all(all_peptides %>% select(starts_with("Intensity.")), sum)
-mean_all <- summarise_all(all_peptides %>% select(starts_with("Intensity.")), mean)
-#mad_all <- summarise_all(all_peptides %>% select(starts_with("Intensity.")), mad)
+background_peptides <- subset(filter(raw, !mgrepl(probe_mods, Modifications, op ="|")), is.na(Reverse)) %>% select("Sequence", "Modifications", "Proteins", "Gene Names", "Protein Names", starts_with("Intensity "))
+all_peptides <- subset(filter(raw, is.na(Reverse)) %>% select("Sequence", "Modifications", "Proteins", "Gene Names", "Protein Names", starts_with("Intensity ")))
+sum_background <- summarise_all(background_peptides %>% select(starts_with("Intensity ")), sum)
+mean_background <- summarise_all(background_peptides %>% select(starts_with("Intensity ")), mean)
+#mad_background <- summarise_all(background_peptides %>% select(starts_with("Intensity ")), mad)
+sum_all <- summarise_all(all_peptides %>% select(starts_with("Intensity ")), sum)
+mean_all <- summarise_all(all_peptides %>% select(starts_with("Intensity ")), mean)
+#mad_all <- summarise_all(all_peptides %>% select(starts_with("Intensity ")), mad)
 ###Conditional statement for the quantititaion of non-probe-modified peptides
 if (background_check == TRUE) {
   filtered_step2 <- add_parent_sequence(background_peptides)
@@ -194,13 +227,14 @@ if (background_check == TRUE) {
 } else {
 ###Conditional statement probe modification-specific quantitation
  #Extract a subset containing non-reverse peptides carrying probe modifications
- filtered_step1 <- subset(filter(raw, mgrepl(probe_mods, Modifications, op ="|")), Reverse !="+")
+ filtered_step1 <- subset(filter(subset(raw, mgrepl(probe_mods, raw[["Modifications"]], op = "|")), is.na(Reverse)))
  #Validate user defined probe modification
  column_names <- colnames(raw)
- mod_col_index <- match(probe_mods,column_names,nomatch = 0)
- mod_validation <- mod_col_index > 0
+ #mod_col_index <- match(probe_mods,column_names,nomatch = 0)
+ mod_validation <- TRUE
  #Filter out peptides carrying more or less than specified numbers of probe modifications on a single peptide
- filtered_step2 <- subset_mod(filtered_step1, probe_mods, max_each_mod, max_total_mods)
+ #filtered_step2 <- subset_mod(filtered_step1, probe_mods, max_each_mod, max_total_mods)
+ filtered_step2 <- elemental_mod_subset(filtered_step1, name_probe_mod, max_each_mod, max_total_mods)
  #Call function 2
  filtered_step2 <- add_parent_sequence(filtered_step2)
 }
@@ -223,7 +257,7 @@ for (i in 1:length(b)) {
 if (quantitation_level == "peptide" && mod_validation == TRUE) {
   ##Quantitation at peptide level
   #Compress/summarize intensity values of each peptide for each sample, extract columns containing sequence information and intensity data
-  by_sequence <- filtered_step2 %>%  select(parent_sequence, Sequence, Modifications, Proteins, Gene.Names, Protein.Names, starts_with("Intensity.")) %>% group_by(parent_sequence)
+  by_sequence <- filtered_step2 %>%  select("parent_sequence", "Sequence", "Modifications", "Proteins", "Gene Names", "Protein Names", starts_with("Intensity ")) %>% group_by(parent_sequence)
   #Conditional calling normalization function 6
   if (!is.null(normalize_to) && normalize_to == "sum_background") {
     by_sequence <- normalize_to_background(by_sequence, sum_background)
@@ -238,7 +272,7 @@ if (quantitation_level == "peptide" && mod_validation == TRUE) {
   }
   intensity_subset1 <- by_sequence %>% summarise_if(is.numeric, sum)
   #Collapse name strings with ; as the delimiter
-  name_subset1 <- by_sequence %>% summarise_at(c("Sequence","Modifications", "Proteins", "Gene.Names", "Protein.Names"), ~paste(.x, collapse="; "))
+  name_subset1 <- by_sequence %>% summarise_at(c("Sequence","Modifications", "Proteins", "Gene Names", "Protein Names"), ~paste(.x, collapse="; "))
   #Combine two parts as a new dataset
   interim_peptide_data <- cbind(name_subset1, subset(intensity_subset1, select = -parent_sequence))
   #Call function 2
@@ -249,7 +283,7 @@ if (quantitation_level == "peptide" && mod_validation == TRUE) {
  } else if (quantitation_level == "protein" && mod_validation == TRUE) {
    ##Quantitation at protein level
    #Compress/summarize intensity values of each protein/protein group for each sample, extract columns containing sequence information and intensity data
-   by_proteins <- filtered_step2 %>%  select(Sequence, Modifications, Proteins, Gene.Names, Protein.Names, starts_with("Intensity.")) %>% group_by(Proteins)
+   by_proteins <- filtered_step2 %>%  select("Sequence", "Modifications", "Proteins", "Gene Names", "Protein Names", starts_with("Intensity ")) %>% group_by(Proteins)
    if (!is.null(normalize_to) && normalize_to == "sum_background") {
      by_proteins <- normalize_to_background(by_proteins, sum_background)
    } else if (!is.null(normalize_to) && normalize_to == "mean_background") {
@@ -263,7 +297,7 @@ if (quantitation_level == "peptide" && mod_validation == TRUE) {
    }
    intensity_subset2 <- by_proteins %>% summarise_if(is.numeric, sum)
    #Collapse name strings with ; as the delimiter
-   name_subset2 <- by_proteins %>% summarise_at(c("Modifications", "Sequence", "Gene.Names", "Protein.Names"), ~paste(.x, collapse="; "))
+   name_subset2 <- by_proteins %>% summarise_at(c("Modifications", "Sequence", "Gene Names", "Protein Names"), ~paste(.x, collapse="; "))
    #Combine two parts as a new dataset
    interim_protein_data <- cbind(name_subset2, subset(intensity_subset2, select = -Proteins))
    #Call function 2

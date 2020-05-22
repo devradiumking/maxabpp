@@ -36,6 +36,7 @@ quick_venn_table=function(x){
   Res=data.frame(Entry=allE,Venn.area=venn_areas,stringsAsFactors=FALSE)
  return(Res)
 }
+
 #' Perform grepl on multiple patterns; it's like  AND-ing or OR-ing successive
 #'  grepl statements.
 #' @param pattern character vector of patterns
@@ -47,3 +48,32 @@ quick_venn_table=function(x){
 mgrepl <- function(pattern, x, op = `|`, ... ){
   Reduce(op, lapply(pattern, grepl, x, ...))
 }
+
+
+#' Add a column of data to an empty tibble
+#' @export
+tibble_add_column <- function(data, ..., before = NULL, after = NULL) {
+  if (nrow(data) == 0L) {
+    return(tibble::tibble(...))
+  }
+  return(tibble::add_column(data, ..., before, after))
+}
+
+
+#' Filter a dataset; drop rows where the cell (containing delimiter parsed elements) of exam_col does not contain a vector of specified values
+#' @export
+elemental_subset <- function (dataset, exam_col, cell_must_contain, delimiter) {
+  #Create an tibble with same column names and first row of data from the input dataset
+  names <- names(dataset)
+  filtered_dataset <- tibble() %>% tibble_add_column(dataset[1,])
+  #This step removes first row of data and creates an empty tibble with same column names as the input dataset
+  filtered_dataset <- filtered_dataset[-1,]
+  for (row_num in 1:nrow(dataset)) {
+    cell_must_contain <- str_split(dataset[[exam_col]], delimiter)[[row_num]]
+    if (length(intersect(cell_must_contain, name_probe_mod)) > 0) {
+      filtered_dataset <- rbind(filtered_dataset, dataset[row_num,])
+    }
+  }
+  return(filtered_dataset)
+}
+
