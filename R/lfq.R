@@ -18,7 +18,7 @@ Check <- ArgumentCheck::newArgCheck()
 num_mods <- length(name_probe_mod)
 
 #* Add an error if raw or metadata is missing
-if (length(metadata[[1]]) != length(intersect(metadata[[1]], names(merge2))))
+if (length(metadata[[1]]) != length(intersect(metadata[[1]], names(raw))))
   ArgumentCheck::addError(
     msg = "'Bad metadata! The metadata does not match the MaxQuant output. Doube check the MaxQuant output Intensity xxx column names and make sure the first column of metadata contains all of them",
     argcheck = Check
