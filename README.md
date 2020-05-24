@@ -5,7 +5,7 @@ Visualizing ABPP Data
 ---------------------
 
 
-![Volcano Plot](examples/CopyOfVolcanoPlotH2O2IPM.svg)
+![Volcano Plot](examples/VolcanoPlotH2O2IPM.svg)
 
 ![Conventional Venn Diagram of Three Protein ID lists](examples/ThreeSetVennDiagram.svg)
 
