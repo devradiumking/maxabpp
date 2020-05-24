@@ -1,7 +1,7 @@
 Package: maxabpp
 Type: Package
 Title: Visualization of MaxQuant output for activity-based protein profiling experiments 
-Version: 2.3
+Version: 2.3.2
 Author: Lei Wang
 Maintainer: Lei Wang <devradiumking@outlook.com>
 Description: This package offers both individualized comparison of protein groups (Venn Diagram and Target Diagram) and pairwise label-free quantitation of chemical probe-modified peptides from the MaxQuant database search output.    
