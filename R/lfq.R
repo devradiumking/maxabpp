@@ -103,9 +103,9 @@ generate_volcano_table <- function (interim_data) {
   result <- data.frame()
   result_p <- data.frame()
   result_fc <- data.frame()
-  interim_data_select <- subset(interim_data, select = -c(2,3,4,5))
-  for (j in 1:nrow(interim_data_select)) {
-    entry_data <- as.data.frame(t(interim_data_select[j,]))
+  #interim_data_select <- subset(interim_data, select = -c(2,3,4,5))
+  for (j in 1:nrow(interim_data)) {
+    entry_data <- as.data.frame(t(interim_data[j,]))
     entry_data <- rownames_to_column(entry_data, "Group")
     entry_data <- separate(entry_data, Group, c("remain","trim"), sep = "\\.")
     for (k in 1:length(filtered_pairs)) {
