@@ -18,7 +18,7 @@ database_search_ec <- function (protein_group) {
   ec <- vector()
   for (i in 1:length(deisoformed_proteins)) {
   index <- grep(deisoformed_proteins[i], proteome_database$Entry)
-  each_ec <- as.character(proteome_database$EC.number[index])
+  each_ec <- as.character(proteome_database$"EC number"[index])
   each_ec <- str_trunc(each_ec, 1, "right", ellipsis = "")
   ec <- c(ec, each_ec)
   }
@@ -77,19 +77,19 @@ database_search_sites <- function (protein_group) {
   for (n in 1:length(protein_group)) {
     index <- grep(protein_group[n], proteome_database$Entry)
     protein_hits[n] <- as.character(proteome_database$Sequence[index])
-    s1 <- extract_sites(proteome_database$Binding.site[index], "BINDING")
+    s1 <- extract_sites(proteome_database$"Binding site"[index], "BINDING")
     if (length(s1) > 0) {
       binding_sites[n] <- s1
     } else {
       binding_sites[n] <- "no"
     }
-    s2 <- extract_sites(proteome_database$Active.site[index], "ACT_SITE")
+    s2 <- extract_sites(proteome_database$"Active site"[index], "ACT_SITE")
     if (length(s2) > 0) {
       active_sites[n] <- s2
     } else {
       active_sites[n] <- "no"
     }
-    s3 <- extract_sites(proteome_database$Site[index], "SITE")
+    s3 <- extract_sites(proteome_database$"Site"[index], "SITE")
     if (length(s3) > 0) {
       other_sites[n] <- s3
     } else {
