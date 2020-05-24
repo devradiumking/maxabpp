@@ -23,12 +23,21 @@ for (nrow_LFQ_table in 1:nrow(LFQ_table_ec)) {
 }
   major_label <- function (dataframe, label_col_name) {
     labs <- dataframe[[label_col_name]]
+    active_sites <- dataframe[["active_sites"]]
+    binding_sites <- dataframe[["binding_sites"]]
+    other_sites <- dataframe[["other_sites"]]
     lab <- NULL
     if (length(labs) < 1) {
       return(NULL)
     } else {
     for (n_labs in 1:length(labs)) {
       lab[n_labs] <- str_split(labs, ";")[[n_labs]][1]
+      active_site_hit <- str_extract(active_sites[[n_labs]], "[0-9]")
+      binding_site_hit <- str_extract(binding_sites[[n_labs]], "[0-9]")
+      other_site_hit <- str_extract(other_sites[[n_labs]], "[0-9]")
+      if (!is.na(active_site_hit)) {lab[n_labs] <- paste0(lab[n_labs], "(Active Site)")}
+      if (!is.na(binding_site_hit)) {lab[n_labs] <- paste0(lab[n_labs], "(Binding Site)")}
+      if (!is.na(other_site_hit)) {lab[n_labs] <- paste0(lab[n_labs], "(Other Site)")}
     }
     return(lab)
     }
@@ -51,6 +60,9 @@ for (nrow_LFQ_table in 1:nrow(LFQ_table_ec)) {
   num_overinhibited <- length(na.exclude(major_label(overinhibited, label_col_name)))
   quantified <- nrow(nna_y) + num_overinhibited
   significant <- length(na.exclude(major_label(sub2, label_col_name))) + num_overinhibited
+  n_active <- as.character(summary(str_detect(LFQ_table_ec$active_sites, "[0-9]"))[3])
+  n_binding <- as.character(summary(str_detect(LFQ_table_ec$binding_sites, "[0-9]"))[3])
+  n_others <- as.character(summary(str_detect(LFQ_table_ec$other_sites, "[0-9]"))[3])
   # set the base colour as 'black'
   keyvals <- rep('black', nrow(finite_x))
 
@@ -337,7 +349,7 @@ plot <- EnhancedVolcano(LFQ_table_ec,
                   xlim = xlim,
                   ylim = ylim,
                   selectLab = NULL,
-                  caption = paste0("Summary: ", identified, " Identified, ", quantified, " Quantified, ", num_overinhibited, " Overinhibited, ", significant, " Significant"),
+                  caption = paste0("Summary: ", identified, " Identified, ", quantified, " Quantified, ", num_overinhibited, " Overinhibited, ", significant, " Significant", "\n" , "Probe-modified peptides cover ", n_active, " Active Sites, ", n_binding, " Binding Sites, ", n_others, " Other Sites."),
                   colCustom = keyvals,
                   title = title,
                   pCutoff = pCutoff,
