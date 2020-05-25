@@ -12,7 +12,6 @@
 #' @param title               a string as the title of the volcano plot
 #' @param label_site_containing_peptides_only  a boolean. IF TRUE, label probe-modified peptides covering active sites, binding sites, or other sites. Default value = FALSE.
 #' @return                    a volcano plot
-#' @examples plot_volcano(output2, x, y, xlim, ylim, label_col_name, pCutoff, FCcutoff, title)
 #' @export
 plot_volcano <- function(LFQ_table_ec, x, y, xlim, ylim, label_col_name, pCutoff, FCcutoff, title, label_site_containing_peptides_only = FALSE) {
   #rownames(LFQ_table_ec) <- LFQ_table_ec$protein$protein
