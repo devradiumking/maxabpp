@@ -125,7 +125,7 @@ generate_volcano_table <- function (interim_data) {
       #Null hypothesis: group1 and group2 have the same intensity
       #Alternative hypothesis, group1 has greater intensity
       t_result <- NULL
-       t_result <- t.test(entry_data_group1, y = entry_data_group2,
+       t_result <- t.test(x = entry_data_group1, y = entry_data_group2,
                         alternative = c("greater"),
                         #Call function 4A to determine variance equality
                         mu = 0, paired = FALSE, var.equal = if_equal_variance(entry_data_group1, entry_data_group2),
@@ -183,7 +183,8 @@ normalize_to_background <- function (data, background) {
 }
 
 #Interanl function 7: Filter dataset to meet mod requirements
-elemental_mod_subset <- function (dataset, name_probe_mod, max_each_mod, max_total_mods) {
+#Buggy!
+elemental_mod_subset <- function (dataset, probe_mods, max_each_mod, max_total_mods) {
   #Create an tibble with same column names and first row of data from the input dataset
   names <- names(dataset)
   filtered_dataset <- tibble() %>% tibble_add_column(dataset[1,])
@@ -191,7 +192,13 @@ elemental_mod_subset <- function (dataset, name_probe_mod, max_each_mod, max_tot
   filtered_dataset <- filtered_dataset[-1,]
   for (row_num in 1:nrow(dataset)) {
     cell_must_contain <- str_split(dataset[["Modifications"]], "\\;")[[row_num]]
-    detected_mods <- intersect(cell_must_contain, name_probe_mod)
+#Bad coding!
+#"Carbamidomethyl (C)" "2 sw(all)"
+#detected_mods <- intersect(cell_must_contain, name_probe_mod)
+#detected_mods
+#character(0)
+    detected_mods <- subset(cell_must_contain, mgrepl(probe_mods, cell_must_contain, op = "|"))
+    #Bad coding! str_extract failed to include number substring
     mod_counts <- str_extract(detected_mods, "[1-9]")
     if (length(mod_counts) == 0) {
       mod_counts <- 1
@@ -216,7 +223,7 @@ elemental_mod_subset <- function (dataset, name_probe_mod, max_each_mod, max_tot
 #metadata <- replace_val(metadata,'\\-', '.')
 sample_groups <- as.character(unique(metadata[,2])[[1]])
 #Replace special characters with dots within the probe modification string due to the limitation of column renaming in R
-probe_mods <- name_probe_mod
+#probe_mods <- name_probe_mod
 #probe_mods <- gsub("-", ".", gsub(" ", ".", gsub("[()]", ".", name_probe_mod)))
 probe_mods <- str_replace_all(name_probe_mod,"\\(","\\\\(")
 probe_mods <- str_replace_all(probe_mods,"\\)","\\\\)")
@@ -243,7 +250,7 @@ if (background_check == TRUE) {
  mod_validation <- TRUE
  #Filter out peptides carrying more or less than specified numbers of probe modifications on a single peptide
  #filtered_step2 <- subset_mod(filtered_step1, probe_mods, max_each_mod, max_total_mods)
- filtered_step2 <- elemental_mod_subset(filtered_step1, name_probe_mod, max_each_mod, max_total_mods)
+ filtered_step2 <- elemental_mod_subset(filtered_step1, probe_mods, max_each_mod, max_total_mods)
  #Call function 2
  filtered_step2 <- add_parent_sequence(filtered_step2)
 }
