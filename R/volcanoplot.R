@@ -10,15 +10,15 @@
 #' @param pCutoff             the p-Value cutoff on -log10 scale, for instance, use 1.3 for p-value = 0.05
 #' @param FCcutoff            the fold change cutoff on log2 scale, for instance, use -1 for -2 fold change, Note for ABPP, we are only interested in negative fold change
 #' @param title               a string as the title of the volcano plot
+#' @param label_site_containing_peptides_only  a boolean. IF TRUE, label probe-modified peptides covering active sites, binding sites, or other sites. Default value = FALSE.
 #' @return                    a volcano plot
 #' @examples plot_volcano(output2, x, y, xlim, ylim, label_col_name, pCutoff, FCcutoff, title)
 #' @export
-plot_volcano <- function(LFQ_table_ec, x, y, xlim, ylim, label_col_name, pCutoff, FCcutoff, title) {
+plot_volcano <- function(LFQ_table_ec, x, y, xlim, ylim, label_col_name, pCutoff, FCcutoff, title, label_site_containing_peptides_only = FALSE) {
   #rownames(LFQ_table_ec) <- LFQ_table_ec$protein$protein
   #rownames(LFQ_table_ec) #<- paste(LFQ_table_ec$protein$protein,":",LFQ_table_ec$`protein names`$`protein names`)
-  # create custom key-value pairs for "Oxidoreductases" "Hydrolases" "Ligases" "Transferases" "Isomerases" "Lyases" "Translocases" "Other proteins"
 for (nrow_LFQ_table in 1:nrow(LFQ_table_ec)) {
-  if (LFQ_table_ec[[label_col_name]][nrow_LFQ_table] == "")
+  if (LFQ_table_ec[[label_col_name]][nrow_LFQ_table] == "" )
     LFQ_table_ec[[label_col_name]][nrow_LFQ_table] <- LFQ_table_ec[["Proteins"]][nrow_LFQ_table]
 }
   major_label <- function (dataframe, label_col_name) {
@@ -29,7 +29,7 @@ for (nrow_LFQ_table in 1:nrow(LFQ_table_ec)) {
     lab <- NULL
     if (length(labs) < 1) {
       return(NULL)
-    } else {
+    } else if (label_site_containing_peptides_only == FALSE) {
     for (n_labs in 1:length(labs)) {
       lab[n_labs] <- str_split(labs, ";")[[n_labs]][1]
       active_site_hit <- str_extract(active_sites[[n_labs]], "[0-9]")
@@ -39,8 +39,22 @@ for (nrow_LFQ_table in 1:nrow(LFQ_table_ec)) {
       if (!is.na(binding_site_hit)) {lab[n_labs] <- paste0(lab[n_labs], "(Binding Site)")}
       if (!is.na(other_site_hit)) {lab[n_labs] <- paste0(lab[n_labs], "(Other Site)")}
     }
+     } else {
+      for (n_labs in 1:length(labs)) {
+      lab[n_labs] <- str_split(labs, ";")[[n_labs]][1]
+      active_site_hit <- str_extract(active_sites[[n_labs]], "[0-9]")
+      binding_site_hit <- str_extract(binding_sites[[n_labs]], "[0-9]")
+      other_site_hit <- str_extract(other_sites[[n_labs]], "[0-9]")
+      if (!is.na(active_site_hit)) {
+        lab[n_labs] <- paste0(lab[n_labs], "\n", "(Active Site)")}
+      if (!is.na(binding_site_hit)) {
+        lab[n_labs] <- paste0(lab[n_labs], "\n", "(Binding Site)")}
+      if (!is.na(other_site_hit)) {
+        lab[n_labs] <- paste0(lab[n_labs], "\n", "(Other Sites)")}
+      if (is.na(active_site_hit) & is.na(binding_site_hit) & is.na(other_site_hit)) {lab[n_labs] <- ""}
+      }
+     }
     return(lab)
-    }
   }
 
   #Calculate ID summary
@@ -63,6 +77,8 @@ for (nrow_LFQ_table in 1:nrow(LFQ_table_ec)) {
   n_active <- as.character(summary(str_detect(LFQ_table_ec$active_sites, "[0-9]"))[3])
   n_binding <- as.character(summary(str_detect(LFQ_table_ec$binding_sites, "[0-9]"))[3])
   n_others <- as.character(summary(str_detect(LFQ_table_ec$other_sites, "[0-9]"))[3])
+
+  # create custom key-value pairs for "Oxidoreductases" "Hydrolases" "Ligases" "Transferases" "Isomerases" "Lyases" "Translocases" "Other proteins"
   # set the base colour as 'black'
   keyvals <- rep('black', nrow(finite_x))
 
@@ -131,12 +147,11 @@ for (nrow_LFQ_table in 1:nrow(LFQ_table_ec)) {
 
     i <- xvals <- yvals <- Sig <- NULL
     toptable <- as.data.frame(toptable)
-    toptable$Sig[(toptable[, x] > -1e100)] <- "NS"
-    toptable$Sig[(toptable[, x] < FCcutoff & toptable[, x] > -1e100)] <- "FC"
-    toptable$Sig[(toptable[, y] < pCutoff & toptable[, x] > -1e100)] <- "P"
-    toptable$Sig[(toptable[, y] < pCutoff) & (toptable[, x] > FCcutoff & toptable[, x] > -1e100)] <- "FC_P"
-    toptable$Sig <- factor(toptable$Sig, levels = c("NS", "FC",
-                                                    "P", "FC_P"))
+    #toptable$Sig[(toptable[, x] > -1e100)] <- "NS"
+    #toptable$Sig[(toptable[, x] < FCcutoff & toptable[, x] > -1e100)] <- "FC"
+    #toptable$Sig[(toptable[, y] < pCutoff & toptable[, x] > -1e100)] <- "P"
+    #toptable$Sig[(toptable[, y] < pCutoff) & (toptable[, x] > FCcutoff & toptable[, x] > -1e100)] <- "FC_P"
+    #toptable$Sig <- factor(toptable$Sig, levels = c("NS", "FC", "P", "FC_P"))
     if (min(toptable[, y], na.rm = TRUE) == 0) {
       warning(paste("One or more P values is 0.", "Converting to minimum possible value..."),
               call. = FALSE)
@@ -146,12 +161,12 @@ for (nrow_LFQ_table in 1:nrow(LFQ_table_ec)) {
     toptable$lab <- major_label(toptable, lab)
     toptable$xvals <- toptable[, x]
     toptable$yvals <- toptable[, y]
-    if (!is.null(selectLab)) {
-      names.new <- rep(NA, length(toptable$lab))
-      indices <- which(toptable$lab %in% selectLab)
-      names.new[indices] <- toptable$lab[indices]
-      toptable$lab <- names.new
-    }
+    #if (!is.null(selectLab)) {
+    #  names.new <- rep(NA, length(toptable$lab))
+    #  indices <- which(toptable$lab %in% selectLab)
+    #  names.new[indices] <- toptable$lab[indices]
+    #  toptable$lab <- names.new
+    #}
     th <- theme_bw(base_size = 24) + theme(legend.background = element_rect(),
                                            plot.title = element_text(angle = 0, size = titleLabSize,
                                                                      face = "bold", vjust = 1), plot.subtitle = element_text(angle = 0,
@@ -272,72 +287,84 @@ for (nrow_LFQ_table in 1:nrow(LFQ_table_ec)) {
     else {
       plot <- plot + theme(panel.grid.minor = element_blank())
     }
-    if (boxedlabels == FALSE) {
-      if (drawConnectors == TRUE && is.null(selectLab)) {
-        plot <- plot + geom_text_repel(data = subset(toptable, toptable[, y] > pLabellingCutoff & toptable[, x] < FCcutoff & toptable[, x] > -1e100), aes(label = subset(toptable, toptable[, y] > pLabellingCutoff & toptable[, x] < FCcutoff & toptable[, x] > -1e100)[, "lab"]), size = transcriptLabSize,
+    # It makes more sense to always draw connectors for overcrowded labels
+    #if (boxedlabels == FALSE) {
+    #if (drawConnectors == TRUE && is.null(selectLab)) {
+    #    if (is.null(selectLab)) {
+    if (label_site_containing_peptides_only == TRUE) {
+   plot <- plot + geom_text_repel(data = toptable, aes(label = toptable[, "lab"]), size = transcriptLabSize,
                                        segment.color = colConnectors, segment.size = widthConnectors,
                                        arrow = arrow(length = lengthConnectors, type = typeConnectors,
                                                      ends = endsConnectors), hjust = transcriptLabhjust,
                                        vjust = transcriptLabvjust, colour = transcriptLabCol,
                                        fontface = transcriptLabFace, na.rm = TRUE)
-      }
-      else if (drawConnectors == TRUE && !is.null(selectLab)) {
-        plot <- plot + geom_text_repel(data = subset(toptable, !is.na(toptable[, "lab"])), aes(label = subset(toptable, !is.na(toptable[, "lab"]))[, "lab"]), size = transcriptLabSize,
-                                       segment.color = colConnectors, segment.size = widthConnectors,
-                                       arrow = arrow(length = lengthConnectors, type = typeConnectors,
-                                                     ends = endsConnectors), hjust = transcriptLabhjust,
-                                       vjust = transcriptLabvjust, colour = transcriptLabCol,
-                                       fontface = transcriptLabFace, na.rm = TRUE)
-      }
-      else if (drawConnectors == FALSE && !is.null(selectLab)) {
-        plot <- plot + geom_text(data = subset(toptable,  !is.na(toptable[, "lab"])), aes(label = subset(toptable, !is.na(toptable[, "lab"]))[, "lab"]), size = transcriptLabSize,
-                                 check_overlap = TRUE, hjust = transcriptLabhjust,
-                                 vjust = transcriptLabvjust, colour = transcriptLabCol,
-                                 fontface = transcriptLabFace, na.rm = TRUE)
-      }
-      else if (drawConnectors == FALSE && is.null(selectLab)) {
-        plot <- plot + geom_text(data = subset(toptable, toptable[, y] > pLabellingCutoff & toptable[, x] < FCcutoff & toptable[, x] > -1e100), aes(label = subset(toptable, toptable[, y] > pLabellingCutoff & toptable[, x] < FCcutoff & toptable[, x] > -1e100)[, "lab"]), size = transcriptLabSize,
-                                 check_overlap = TRUE, hjust = transcriptLabhjust,
-                                 vjust = transcriptLabvjust, colour = transcriptLabCol,
-                                 fontface = transcriptLabFace, na.rm = TRUE)
-      }
+    } else {
+      plot <- plot + geom_text_repel(data = subset(toptable, toptable[, y] > pLabellingCutoff & toptable[, x] < FCcutoff & toptable[, x] > -1e100), aes(label = subset(toptable, toptable[, y] > pLabellingCutoff & toptable[, x] < FCcutoff & toptable[, x] > -1e100)[, "lab"]), size = transcriptLabSize,
+                                     segment.color = colConnectors, segment.size = widthConnectors,
+                                     arrow = arrow(length = lengthConnectors, type = typeConnectors,
+                                                   ends = endsConnectors), hjust = transcriptLabhjust,
+                                     vjust = transcriptLabvjust, colour = transcriptLabCol,
+                                     fontface = transcriptLabFace, na.rm = TRUE)
     }
-    else {
-      if (drawConnectors == TRUE && is.null(selectLab)) {
-        plot <- plot + geom_label_repel(data = subset(toptable, toptable[, y] > pLabellingCutoff & toptable[, x] < FCcutoff & toptable[, x] > -1e100), aes(label = subset(toptable, toptable[, y] > pLabellingCutoff & toptable[, x] < FCcutoff)[, "lab"] & toptable[, x] > -1e100), size = transcriptLabSize,
-                                        arrow = arrow(length = lengthConnectors, type = typeConnectors,
-                                                      ends = endsConnectors), hjust = transcriptLabhjust,
-                                        vjust = transcriptLabvjust, colour = transcriptLabCol,
-                                        fontface = transcriptLabFace, na.rm = TRUE)
-      }
-      else if (drawConnectors == TRUE && !is.null(selectLab)) {
-        plot <- plot + geom_label_repel(data = subset(toptable, !is.na(toptable[, "lab"])), aes(label = subset(toptable,  !is.na(toptable[, "lab"]))[, "lab"]), size = transcriptLabSize,
-                                        segment.color = colConnectors, segment.size = widthConnectors,
-                                        arrow = arrow(length = lengthConnectors, type = typeConnectors,
-                                                      ends = endsConnectors), hjust = transcriptLabhjust,
-                                        vjust = transcriptLabvjust, colour = transcriptLabCol,
-                                        fontface = transcriptLabFace, na.rm = TRUE)
-      }
-      else if (drawConnectors == FALSE && !is.null(selectLab)) {
-        plot <- plot + geom_label(data = subset(toptable, !is.na(toptable[, "lab"])), aes(label = subset(toptable, !is.na(toptable[, "lab"]))[, "lab"]), size = transcriptLabSize,
-                                  hjust = transcriptLabhjust, vjust = transcriptLabvjust,
-                                  colour = transcriptLabCol, fontface = transcriptLabFace,
-                                  na.rm = TRUE)
-      }
-      else if (drawConnectors == FALSE && is.null(selectLab)) {
-        plot <- plot + geom_label(data = subset(toptable, toptable[, y] > pLabellingCutoff & toptable[, x] < FCcutoff & toptable[, x] > -1e100), aes(label = subset(toptable, toptable[, y] > pLabellingCutoff & toptable[, x] < FCcutoff)[, "lab"] & toptable[, x] > -1e100), size = transcriptLabSize,
-                                  hjust = transcriptLabhjust, vjust = transcriptLabvjust,
-                                  colour = transcriptLabCol, fontface = transcriptLabFace,
-                                  na.rm = TRUE)
-      }
-    }
-    if (!is.null(shade)) {
-      plot <- plot + stat_density2d(data = subset(toptable, rownames(toptable) %in% shade), fill = shadeFill,
-                                    alpha = shadeAlpha, geom = "polygon", contour = TRUE,
-                                    size = shadeSize, bins = shadeBins, show.legend = FALSE,
-                                    na.rm = TRUE) + scale_fill_identity(name = shadeLabel,
-                                                                        labels = shadeLabel, guide = "legend")
-    }
+
+    #else if (drawConnectors == TRUE && !is.null(selectLab)) {
+   # else if (!is.null(selectLab)) {
+   #     plot <- plot + geom_text_repel(data = subset(toptable, !is.na(toptable[, "lab"])), aes(label = subset(toptable, !is.na(toptable[, "lab"]))[, "lab"]), size = transcriptLabSize,
+   #                                    segment.color = colConnectors, segment.size = widthConnectors,
+   #                                    arrow = arrow(length = lengthConnectors, type = typeConnectors,
+   #                                                  ends = endsConnectors), hjust = transcriptLabhjust,
+   #                                    vjust = transcriptLabvjust, colour = transcriptLabCol,
+   #                                    fontface = transcriptLabFace, na.rm = TRUE)
+   #   }
+   # else if (drawConnectors == FALSE && !is.null(selectLab)) {
+   #   plot <- plot + geom_text(data = subset(toptable,  !is.na(toptable[, "lab"])), aes(label = subset(toptable, !is.na(toptable[, "lab"]))[, "lab"]), size = transcriptLabSize,
+   #                            check_overlap = TRUE, hjust = transcriptLabhjust,
+   #                            vjust = transcriptLabvjust, colour = transcriptLabCol,
+   #                            fontface = transcriptLabFace, na.rm = TRUE)
+   # }
+   # else if (drawConnectors == FALSE && is.null(selectLab)) {
+   #   plot <- plot + geom_text(data = subset(toptable, toptable[, y] > pLabellingCutoff & toptable[, x] < FCcutoff & toptable[, x] > -1e100), aes(label = subset(toptable, toptable[, y] > pLabellingCutoff & toptable[, x] < FCcutoff & toptable[, x] > -1e100)[, "lab"]), size = transcriptLabSize,
+   #                            check_overlap = TRUE, hjust = transcriptLabhjust,
+   #                            vjust = transcriptLabvjust, colour = transcriptLabCol,
+   #                            fontface = transcriptLabFace, na.rm = TRUE)
+   # }
+    #}
+   # else {
+   #   if (drawConnectors == TRUE && is.null(selectLab)) {
+   #     plot <- plot + geom_label_repel(data = subset(toptable, toptable[, y] > pLabellingCutoff & toptable[, x] < FCcutoff & toptable[, x] > -1e100), aes(label = subset(toptable, toptable[, y] > pLabellingCutoff & toptable[, x] < FCcutoff)[, "lab"] & toptable[, x] > -1e100), size = transcriptLabSize,
+   #                                     arrow = arrow(length = lengthConnectors, type = typeConnectors,
+   #                                                   ends = endsConnectors), hjust = transcriptLabhjust,
+   #                                     vjust = transcriptLabvjust, colour = transcriptLabCol,
+   #                                     fontface = transcriptLabFace, na.rm = TRUE)
+   #   }
+   #   else if (drawConnectors == TRUE && !is.null(selectLab)) {
+   #     plot <- plot + geom_label_repel(data = subset(toptable, !is.na(toptable[, "lab"])), aes(label = subset(toptable,  !is.na(toptable[, "lab"]))[, "lab"]), size = transcriptLabSize,
+   #                                     segment.color = colConnectors, segment.size = widthConnectors,
+   #                                     arrow = arrow(length = lengthConnectors, type = typeConnectors,
+   #                                                   ends = endsConnectors), hjust = transcriptLabhjust,
+   #                                     vjust = transcriptLabvjust, colour = transcriptLabCol,
+   #                                     fontface = transcriptLabFace, na.rm = TRUE)
+   #   }
+   #   else if (drawConnectors == FALSE && !is.null(selectLab)) {
+   #     plot <- plot + geom_label(data = subset(toptable, !is.na(toptable[, "lab"])), aes(label = subset(toptable, !is.na(toptable[, "lab"]))[, "lab"]), size = transcriptLabSize,
+   #                               hjust = transcriptLabhjust, vjust = transcriptLabvjust,
+   #                               colour = transcriptLabCol, fontface = transcriptLabFace,
+   #                               na.rm = TRUE)
+   #   }
+   #   else if (drawConnectors == FALSE && is.null(selectLab)) {
+   #     plot <- plot + geom_label(data = subset(toptable, toptable[, y] > pLabellingCutoff & toptable[, x] < FCcutoff & toptable[, x] > -1e100), aes(label = subset(toptable, toptable[, y] > pLabellingCutoff & toptable[, x] < FCcutoff)[, "lab"] & toptable[, x] > -1e100), size = transcriptLabSize,
+   #                               hjust = transcriptLabhjust, vjust = transcriptLabvjust,
+   #                               colour = transcriptLabCol, fontface = transcriptLabFace,
+   #                               na.rm = TRUE)
+   #   }
+   # }
+   # if (!is.null(shade)) {
+   #   plot <- plot + stat_density2d(data = subset(toptable, rownames(toptable) %in% shade), fill = shadeFill,
+   #                                 alpha = shadeAlpha, geom = "polygon", contour = TRUE,
+   #                                 size = shadeSize, bins = shadeBins, show.legend = FALSE,
+   #                                 na.rm = TRUE) + scale_fill_identity(name = shadeLabel,
+   #                                                                     labels = shadeLabel, guide = "legend")
+   # }
     return(plot)
   }
 
@@ -348,7 +375,7 @@ plot <- EnhancedVolcano(LFQ_table_ec,
                   y = y,
                   xlim = xlim,
                   ylim = ylim,
-                  selectLab = NULL,
+                  #selectLab = NULL,
                   caption = paste0("Summary: ", identified, " Identified, ", quantified, " Quantified, ", num_overinhibited, " Overinhibited, ", significant, " Significant", "\n" , "Probe-modified peptides cover ", n_active, " Active Sites, ", n_binding, " Binding Sites, ", n_others, " Other Sites."),
                   colCustom = keyvals,
                   title = title,
@@ -359,7 +386,7 @@ plot <- EnhancedVolcano(LFQ_table_ec,
                   col=c('black',"black","black" ,'red3'),
                   colAlpha = 1,
                   legendVisible = FALSE,
-                  drawConnectors = TRUE,
+                  #drawConnectors = TRUE,
                   widthConnectors = 0.5,
                   colConnectors = 'darkgray')
 

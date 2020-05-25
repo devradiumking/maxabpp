@@ -19,7 +19,7 @@ output1 <- pairwise_LFQ(
   quantitation_level = "peptide",
   background_check = FALSE)
 output2 <- append_ec_sites(output1, quantitation_level = "peptide")
-plot_volcano(output2, "Orlistat10 _vs_ Orlistat1 _log2fold_change" , "Orlistat10 _vs_ Orlistat1 _-log10p-value", xlim = c(-5.5, 3), ylim = c(0, 5), "Gene Names", 3, 0, "Example Inhibitor/Example Probe")
+plot_volcano(output2, "Orlistat10 _vs_ Orlistat1 _log2fold_change" , "Orlistat10 _vs_ Orlistat1 _-log10p-value", xlim = c(-5.5, 3), ylim = c(0, 5), "Gene Names", 3, 0, "Example Inhibitor/Example Probe", TRUE)
 
 #Read MeLac-alkyne data
 raw1 <-read_tsv("sw.txt")
