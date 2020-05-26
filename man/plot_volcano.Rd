@@ -13,7 +13,8 @@ plot_volcano(
   label_col_name,
   pCutoff,
   FCcutoff,
-  title
+  title,
+  label_site_containing_peptides_only = FALSE
 )
 }
 \arguments{
@@ -34,15 +35,14 @@ plot_volcano(
 \item{FCcutoff}{the fold change cutoff on log2 scale, for instance, use -1 for -2 fold change, Note for ABPP, we are only interested in negative fold change}
 
 \item{title}{a string as the title of the volcano plot}
+
+\item{label_site_containing_peptides_only}{a boolean. IF TRUE, label probe-modified peptides covering active sites, binding sites, or other sites. Default value = FALSE.}
 }
 \value{
 a volcano plot
 }
 \description{
 Generates a volcano plot from the output of append_ec_sites()
-}
-\examples{
-plot_volcano(output2, x, y, xlim, ylim, label_col_name, pCutoff, FCcutoff, title)
 }
 \seealso{
 \code{\link{pairwise_LFQ}}
